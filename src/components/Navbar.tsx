@@ -15,6 +15,7 @@ import {
   Newspaper,
   Menu,
   X,
+  Users,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -40,6 +41,7 @@ export default function Navbar() {
     { href: "/submit",          label: "ส่งงาน",         icon: Send },
     { href: "/my-submissions",  label: "ประวัติส่งงาน",  icon: History },
     { href: "/news",            label: "ข่าวสาร",        icon: Newspaper },
+    { href: "/community",       label: "ชุมชน",          icon: Users },
   ];
 
   const adminLinks = [
@@ -47,6 +49,7 @@ export default function Navbar() {
     { href: "/admin/submissions",  label: "ดูผลงาน",        icon: History },
     { href: "/admin/lessons",      label: "จัดการบทเรียน",  icon: BookOpen },
     { href: "/admin/news",         label: "จัดการข่าวสาร",  icon: Newspaper },
+    { href: "/community",          label: "ชุมชน",          icon: Users },
   ];
 
   const links = isAdmin ? adminLinks : officerLinks;

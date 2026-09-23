@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { UserProfile, Lesson, NewsItem, Submission } from "@/lib/constants";
+import { UserProfile, Lesson, NewsItem, Submission, PostWithDetails } from "@/lib/constants";
 import { createClient } from "@/lib/supabase/client";
 
 interface AuthContextType {
@@ -9,6 +9,7 @@ interface AuthContextType {
   lessons: Lesson[];
   news: NewsItem[];
   submissions: Submission[];
+  posts: PostWithDetails[];
   loading: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; message?: string }>;
   register: (data: { full_name: string; rank?: string; unit: string; email: string; password: string }) => Promise<{ success: boolean; message?: string }>;
@@ -18,6 +19,13 @@ interface AuthContextType {
   addNews: (title: string, body: string, urgent: boolean, url?: string, youtube_url?: string) => Promise<boolean>;
   deleteNews: (id: string) => Promise<boolean>;
   addSubmission: (submissionData: { lesson_id: string; prompt_text: string; notes?: string; image_url?: string }) => Promise<boolean>;
+  addPost: (content: string, imageFile?: File) => Promise<boolean>;
+  deletePost: (id: string) => Promise<boolean>;
+  likePost: (postId: string) => Promise<boolean>;
+  unlikePost: (postId: string) => Promise<boolean>;
+  addComment: (postId: string, content: string) => Promise<boolean>;
+  deleteComment: (commentId: string) => Promise<boolean>;
+  fetchPosts: () => Promise<void>;
   refreshData: () => void;
 }
 
@@ -28,6 +36,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [news, setNews] = useState<NewsItem[]>([]);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const [posts, setPosts] = useState<PostWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
 
   const supabase = createClient();
@@ -53,6 +62,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (error) {
       console.error("Error fetching user profile:", error);
+    }
+  };
+
+  const fetchPosts = async () => {
+    try {
+      const { data: postsData, error } = await supabase
+        .from('posts')
+        .select(`
+          *,
+          profiles!posts_user_id_fkey(full_name, rank, unit),
+          post_likes(id, user_id),
+          post_comments(id, user_id, content, created_at, profiles!post_comments_user_id_fkey(full_name, rank, unit))
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.warn("Error fetching posts (table may not exist yet):", error.message);
+        setPosts([]);
+        return;
+      }
+
+      if (postsData) {
+        const enriched = postsData.map((p: any) => ({
+          ...p,
+          like_count: p.post_likes?.length || 0,
+          comment_count: p.post_comments?.length || 0,
+          is_liked: user ? p.post_likes?.some((l: any) => l.user_id === user.id) : false,
+          post_comments: (p.post_comments || []).sort(
+            (a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+          ),
+        }));
+        setPosts(enriched);
+      }
+    } catch (error) {
+      console.warn("Error fetching posts:", error);
+      setPosts([]);
     }
   };
 
@@ -93,6 +138,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }));
         setSubmissions(mappedSubs);
       }
+
+      // Fetch posts
+      await fetchPosts();
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -116,6 +164,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
         setSubmissions([]);
+        setPosts([]);
       }
     });
 
@@ -273,6 +322,137 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return false;
   };
 
+  // ─── Community Post Functions ───
+
+  const addPost = async (content: string, imageFile?: File) => {
+    if (!user) return false;
+
+    let image_url: string | undefined;
+
+    // Upload image to Supabase Storage if provided
+    if (imageFile) {
+      const fileExt = imageFile.name.split('.').pop();
+      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('post-images')
+        .upload(fileName, imageFile, { cacheControl: '3600', upsert: false });
+
+      if (uploadError) {
+        console.error("Image upload error:", uploadError);
+        // Continue without image if upload fails
+      } else {
+        const { data: urlData } = supabase.storage
+          .from('post-images')
+          .getPublicUrl(fileName);
+        image_url = urlData.publicUrl;
+      }
+    }
+
+    const payload: any = {
+      user_id: user.id,
+      content,
+    };
+    if (image_url) payload.image_url = image_url;
+
+    const { error } = await supabase
+      .from('posts')
+      .insert([payload]);
+
+    if (!error) {
+      await fetchPosts();
+      return true;
+    }
+
+    console.error("Error creating post:", error);
+    return false;
+  };
+
+  const deletePost = async (id: string) => {
+    if (!user) return false;
+    const { error } = await supabase.from('posts').delete().eq('id', id);
+    if (!error) {
+      await fetchPosts();
+      return true;
+    }
+    console.error("Error deleting post:", error);
+    return false;
+  };
+
+  const likePost = async (postId: string) => {
+    if (!user) return false;
+    const { error } = await supabase
+      .from('post_likes')
+      .insert([{ post_id: postId, user_id: user.id }]);
+    if (!error) {
+      // Optimistic update
+      setPosts(prev => prev.map(p => {
+        if (p.id === postId) {
+          return {
+            ...p,
+            is_liked: true,
+            like_count: (p.like_count || 0) + 1,
+            post_likes: [...(p.post_likes || []), { id: 'temp', post_id: postId, user_id: user.id, created_at: new Date().toISOString() }],
+          };
+        }
+        return p;
+      }));
+      return true;
+    }
+    return false;
+  };
+
+  const unlikePost = async (postId: string) => {
+    if (!user) return false;
+    const { error } = await supabase
+      .from('post_likes')
+      .delete()
+      .eq('post_id', postId)
+      .eq('user_id', user.id);
+    if (!error) {
+      // Optimistic update
+      setPosts(prev => prev.map(p => {
+        if (p.id === postId) {
+          return {
+            ...p,
+            is_liked: false,
+            like_count: Math.max(0, (p.like_count || 0) - 1),
+            post_likes: (p.post_likes || []).filter(l => l.user_id !== user.id),
+          };
+        }
+        return p;
+      }));
+      return true;
+    }
+    return false;
+  };
+
+  const addComment = async (postId: string, content: string) => {
+    if (!user) return false;
+    const { error } = await supabase
+      .from('post_comments')
+      .insert([{ post_id: postId, user_id: user.id, content }]);
+    if (!error) {
+      await fetchPosts();
+      return true;
+    }
+    console.error("Error adding comment:", error);
+    return false;
+  };
+
+  const deleteComment = async (commentId: string) => {
+    if (!user) return false;
+    const { error } = await supabase
+      .from('post_comments')
+      .delete()
+      .eq('id', commentId);
+    if (!error) {
+      await fetchPosts();
+      return true;
+    }
+    return false;
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -280,6 +460,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         lessons,
         news,
         submissions,
+        posts,
         loading,
         login,
         register,
@@ -289,6 +470,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         addNews,
         deleteNews,
         addSubmission,
+        addPost,
+        deletePost,
+        likePost,
+        unlikePost,
+        addComment,
+        deleteComment,
+        fetchPosts,
         refreshData
       }}
     >

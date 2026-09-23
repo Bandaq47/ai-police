@@ -19,6 +19,7 @@ import {
   Shield,
   CheckCircle2,
   Sparkles,
+  Users,
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -74,6 +75,19 @@ const MENU_ITEMS = [
     cta: "อ่านข่าวสาร",
     ctaColor: "text-blue-700",
     accent: "from-blue-50 to-white",
+  },
+  {
+    href: "/community",
+    label: "ชุมชน",
+    desc: "แชร์ประสบการณ์ บยกเสนอวิธีใช้ AI และแลกเปลี่ยนความรู้กับเพื่อน",
+    icon: Users,
+    color: "text-violet-700",
+    bg: "bg-violet-50",
+    hoverBg: "group-hover:bg-violet-600",
+    hoverText: "group-hover:text-white",
+    cta: "ไปหน้าชุมชน",
+    ctaColor: "text-violet-700",
+    accent: "from-violet-50 to-white",
   },
 ];
 

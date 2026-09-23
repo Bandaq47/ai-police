@@ -87,6 +87,48 @@ export interface UserProfile {
   role: 'officer' | 'admin';
 }
 
+export interface Post {
+  id: string;
+  user_id: string;
+  content: string;
+  image_url?: string;
+  created_at: string;
+}
+
+export interface PostLike {
+  id: string;
+  post_id: string;
+  user_id: string;
+  created_at: string;
+}
+
+export interface PostComment {
+  id: string;
+  post_id: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+}
+
+export interface PostWithDetails extends Post {
+  profiles?: {
+    full_name: string;
+    rank?: string;
+    unit: string;
+  };
+  post_likes?: PostLike[];
+  post_comments?: (PostComment & {
+    profiles?: {
+      full_name: string;
+      rank?: string;
+      unit: string;
+    };
+  })[];
+  like_count?: number;
+  comment_count?: number;
+  is_liked?: boolean;
+}
+
 export const DEFAULT_LESSONS: Lesson[] = [
   {
     id: "11111111-1111-1111-1111-111111111111",
