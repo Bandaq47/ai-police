@@ -1,0 +1,100 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --primary-oxblood: #661D27;
+    --primary-dark: #4A141B;
+    --primary-light: #8B2835;
+    --bg-cream: #FFFFFF;
+    --accent-bronze: #8C7B6B;
+    --card-bg: #FFFFFF;
+    --border-subtle: rgba(102, 29, 39, 0.08);
+  }
+
+  body {
+    background-color: var(--bg-cream);
+    color: #1A1A1A;
+    font-family: var(--font-prompt), 'Prompt', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+}
+
+/* ============================
+   Custom Scrollbar
+   ============================ */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #C5A0A5; border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: #661D27; }
+
+/* ============================
+   Core Brand Gradients
+   ============================ */
+.oxblood-gradient {
+  background: linear-gradient(135deg, #7a2130 0%, #4A141B 100%);
+}
+
+.oxblood-gradient-soft {
+  background: linear-gradient(135deg, #f8f0f1 0%, #fdf5f5 100%);
+}
+
+/* ============================
+   Card Hover Effect
+   ============================ */
+.oxblood-card-hover {
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+.oxblood-card-hover:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px -8px rgba(102, 29, 39, 0.14);
+}
+
+/* ============================
+   Glass Panel
+   ============================ */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+/* ============================
+   Stat Card Shimmer
+   ============================ */
+.stat-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.stat-shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+  animation: shimmer 2.8s infinite;
+}
+@keyframes shimmer {
+  0%   { left: -100%; }
+  100% { left: 200%; }
+}
+
+/* ============================
+   Page Fade-in
+   ============================ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-up { animation: fadeUp 0.45s ease both; }
+
+/* ============================
+   Chart Tooltip Override
+   ============================ */
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  border-radius: 12px !important;
+  border: 1px solid #e2e8f0 !important;
+  font-size: 12px !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08) !important;
+}
