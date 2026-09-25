@@ -16,10 +16,10 @@ interface AuthContextType {
   logout: () => void;
   addLesson: (title: string, description: string) => Promise<boolean>;
   deleteLesson: (id: string) => Promise<boolean>;
-  addNews: (title: string, body: string, urgent: boolean, url?: string, youtube_url?: string) => Promise<boolean>;
+  addNews: (title: string, body: string, urgent: boolean, url?: string, youtube_url?: string) => Promise<{ success: boolean; errorMessage?: string }>;
   deleteNews: (id: string) => Promise<boolean>;
   addSubmission: (submissionData: { lesson_id: string; prompt_text: string; notes?: string; image_url?: string }) => Promise<boolean>;
-  addPost: (content: string, imageFile?: File) => Promise<boolean>;
+  addPost: (content: string, imageFile?: File) => Promise<{ success: boolean; errorMessage?: string }>;
   deletePost: (id: string) => Promise<boolean>;
   likePost: (postId: string) => Promise<boolean>;
   unlikePost: (postId: string) => Promise<boolean>;
@@ -67,18 +67,88 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchPosts = async () => {
     try {
-      const { data: postsData, error } = await supabase
+      // First attempt: include profiles for post_likes if relation exists
+      let postsData: any = null;
+      let error: any = null;
+
+      // Attempt 1: Full join with fkey relations
+      const fullQuery = await supabase
         .from('posts')
         .select(`
           *,
           profiles!posts_user_id_fkey(full_name, rank, unit),
-          post_likes(id, user_id),
+          post_likes(id, user_id, profiles(full_name, rank)),
           post_comments(id, user_id, content, created_at, profiles!post_comments_user_id_fkey(full_name, rank, unit))
         `)
         .order('created_at', { ascending: false });
 
+      if (!fullQuery.error) {
+        postsData = fullQuery.data;
+      } else {
+        // Attempt 2: Fallback query without explicit fkey names
+        const fallbackQuery = await supabase
+          .from('posts')
+          .select(`
+            *,
+            profiles(full_name, rank, unit),
+            post_likes(id, user_id),
+            post_comments(id, user_id, content, created_at)
+          `)
+          .order('created_at', { ascending: false });
+
+        if (!fallbackQuery.error && fallbackQuery.data) {
+          postsData = fallbackQuery.data;
+        } else {
+          // Attempt 3: Direct decoupled query (works regardless of schema relationships/caching)
+          const basicQuery = await supabase
+            .from('posts')
+            .select(`
+              *,
+              post_likes(id, user_id),
+              post_comments(id, user_id, content, created_at)
+            `)
+            .order('created_at', { ascending: false });
+
+          if (!basicQuery.error && basicQuery.data) {
+            const userIds = new Set<string>();
+            basicQuery.data.forEach((p: any) => {
+              if (p.user_id) userIds.add(p.user_id);
+              p.post_likes?.forEach((l: any) => { if (l.user_id) userIds.add(l.user_id); });
+              p.post_comments?.forEach((c: any) => { if (c.user_id) userIds.add(c.user_id); });
+            });
+
+            let profileMap: Record<string, any> = {};
+            if (userIds.size > 0) {
+              const { data: profs } = await supabase
+                .from('profiles')
+                .select('id, full_name, rank, unit')
+                .in('id', Array.from(userIds));
+              if (profs) {
+                profs.forEach((pr: any) => { profileMap[pr.id] = pr; });
+              }
+            }
+
+            postsData = basicQuery.data.map((p: any) => ({
+              ...p,
+              profiles: profileMap[p.user_id] || null,
+              post_likes: (p.post_likes || []).map((l: any) => ({
+                ...l,
+                profiles: profileMap[l.user_id] || null,
+              })),
+              post_comments: (p.post_comments || []).map((c: any) => ({
+                ...c,
+                profiles: profileMap[c.user_id] || null,
+              })),
+            }));
+            error = null;
+          } else {
+            error = basicQuery.error;
+          }
+        }
+      }
+
       if (error) {
-        console.warn("Error fetching posts (table may not exist yet):", error.message);
+        console.warn("Notice while fetching posts (table may need setup):", error.message);
         setPosts([]);
         return;
       }
@@ -239,8 +309,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return false;
   };
 
-  const addNews = async (title: string, body: string, urgent: boolean, url?: string, youtube_url?: string) => {
-    if (!user) return false;
+  const addNews = async (title: string, body: string, urgent: boolean, url?: string, youtube_url?: string): Promise<{ success: boolean; errorMessage?: string }> => {
+    if (!user) return { success: false, errorMessage: 'Not logged in' };
 
     const cleanUrl = url && url.trim() ? url.trim() : undefined;
     const cleanYoutubeUrl = youtube_url && youtube_url.trim() ? youtube_url.trim() : undefined;
@@ -260,12 +330,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     if (!error) {
       refreshData();
-      return true;
+      return { success: true };
     }
 
-    console.warn("Supabase insert news with custom columns failed. Attempting fallback with embedded media links:", error);
+    console.error("[addNews] Primary insert FAILED:", JSON.stringify(error, null, 2));
+    console.warn("[addNews] Attempting fallback without url/youtube_url columns...");
 
-    // Smart Fallback: If 'url' or 'youtube_url' columns are not added in Supabase 'news' table yet,
+    // Smart Fallback: If 'url' or 'youtube_url' columns are not added yet,
     // embed the link inside body so our extractor can still detect and play it!
     let fallbackBody = body;
     if (cleanYoutubeUrl && !fallbackBody.includes(cleanYoutubeUrl)) {
@@ -288,11 +359,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     if (!fbError) {
       refreshData();
-      return true;
+      return { success: true };
     }
 
-    console.error("Supabase fallback insert news error:", fbError);
-    return false;
+    console.error("[addNews] Fallback insert FAILED:", JSON.stringify(fbError, null, 2));
+    return { success: false, errorMessage: fbError.message || fbError.code || JSON.stringify(fbError) };
   };
 
   const deleteNews = async (id: string) => {
@@ -324,27 +395,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // ─── Community Post Functions ───
 
-  const addPost = async (content: string, imageFile?: File) => {
-    if (!user) return false;
+  const addPost = async (content: string, imageFile?: File): Promise<{ success: boolean; errorMessage?: string }> => {
+    if (!user) return { success: false, errorMessage: "กรุณาเข้าสู่ระบบก่อนสร้างโพสต์" };
 
     let image_url: string | undefined;
 
     // Upload image to Supabase Storage if provided
     if (imageFile) {
-      const fileExt = imageFile.name.split('.').pop();
+      const fileExt = imageFile.name.split('.').pop() || 'png';
       const fileName = `${user.id}/${Date.now()}.${fileExt}`;
       
-      const { error: uploadError } = await supabase.storage
+      // Try bucket 'post-images' first
+      let uploadRes = await supabase.storage
         .from('post-images')
         .upload(fileName, imageFile, { cacheControl: '3600', upsert: false });
 
-      if (uploadError) {
-        console.error("Image upload error:", uploadError);
-        // Continue without image if upload fails
+      // If 'post-images' fails (e.g. bucket doesn't exist or RLS), try existing 'submissions' bucket
+      if (uploadRes.error) {
+        console.warn("Upload to 'post-images' failed, trying fallback bucket 'submissions':", uploadRes.error);
+        uploadRes = await supabase.storage
+          .from('submissions')
+          .upload(`posts/${fileName}`, imageFile, { cacheControl: '3600', upsert: false });
+      }
+
+      if (uploadRes.error) {
+        console.error("Image upload failed completely:", uploadRes.error);
+        const isRls = uploadRes.error.message?.toLowerCase().includes("row-level security") || uploadRes.error.message?.toLowerCase().includes("policy");
+        return { 
+          success: false, 
+          errorMessage: isRls 
+            ? "ติดสิทธิ์ Storage (RLS): กรุณารันคำสั่ง SQL ใน Supabase เพื่อเปิดสิทธิ์อัปโหลดรูปภาพ" 
+            : `อัปโหลดรูปภาพไม่สำเร็จ: ${uploadRes.error.message}` 
+        };
       } else {
+        const bucketUsed = uploadRes.data?.path?.startsWith('posts/') ? 'submissions' : 'post-images';
         const { data: urlData } = supabase.storage
-          .from('post-images')
-          .getPublicUrl(fileName);
+          .from(bucketUsed)
+          .getPublicUrl(uploadRes.data?.path || fileName);
         image_url = urlData.publicUrl;
       }
     }
@@ -361,11 +448,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     if (!error) {
       await fetchPosts();
-      return true;
+      return { success: true };
     }
 
     console.error("Error creating post:", error);
-    return false;
+    const isRls = error.message?.toLowerCase().includes("row-level security") || error.message?.toLowerCase().includes("policy");
+    return {
+      success: false,
+      errorMessage: isRls
+        ? "ติดสิทธิ์ความปลอดภัยตาราง (RLS): กรุณารันคำสั่ง SQL ใน Supabase เพื่อเปิดสิทธิ์ตาราง posts"
+        : `ไม่สามารถบันทึกโพสต์ได้: ${error.message}`
+    };
   };
 
   const deletePost = async (id: string) => {
@@ -392,7 +485,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             ...p,
             is_liked: true,
             like_count: (p.like_count || 0) + 1,
-            post_likes: [...(p.post_likes || []), { id: 'temp', post_id: postId, user_id: user.id, created_at: new Date().toISOString() }],
+            post_likes: [
+              ...(p.post_likes || []),
+              {
+                id: 'temp-' + Date.now(),
+                post_id: postId,
+                user_id: user.id,
+                created_at: new Date().toISOString(),
+                profiles: {
+                  full_name: user.full_name,
+                  rank: user.rank,
+                }
+              }
+            ],
           };
         }
         return p;

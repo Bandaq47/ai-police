@@ -100,6 +100,10 @@ export interface PostLike {
   post_id: string;
   user_id: string;
   created_at: string;
+  profiles?: {
+    full_name: string;
+    rank?: string;
+  };
 }
 
 export interface PostComment {

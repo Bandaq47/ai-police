@@ -38,10 +38,10 @@ export default function AdminNewsForm() {
     const finalYoutubeUrl = youtubeUrl.trim() || (detectedYtUrl ? detectedYtUrl : "");
     const finalUrl = url.trim();
 
-    const success = await addNews(title.trim(), body.trim(), urgent, finalUrl, finalYoutubeUrl);
+    const result = await addNews(title.trim(), body.trim(), urgent, finalUrl, finalYoutubeUrl);
     setLoading(false);
 
-    if (success) {
+    if (result.success) {
       setTitle("");
       setBody("");
       setUrgent(false);
@@ -50,7 +50,8 @@ export default function AdminNewsForm() {
       setStatusMsg({ type: "success", text: "เพิ่มข่าวสาร/วิดีโอสำเร็จเรียบร้อยแล้ว" });
       setTimeout(() => setStatusMsg(null), 3500);
     } else {
-      setStatusMsg({ type: "error", text: "เกิดข้อผิดพลาดในการบันทึก กรุณาลองใหม่อีกครั้ง" });
+      const errDetail = result.errorMessage ? ` (${result.errorMessage})` : "";
+      setStatusMsg({ type: "error", text: `เกิดข้อผิดพลาดในการบันทึก${errDetail}` });
     }
   };
 
