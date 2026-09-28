@@ -10,8 +10,11 @@ create table if not exists public.profiles (
   id uuid references auth.users on delete cascade primary key,
   full_name text not null,
   rank text,                        -- ยศ เช่น พ.ต.อ., พ.ต.ท., ร.ต.อ.
-  unit text not null,               -- สภ. ที่สังกัด (19 แห่งในจังหวัดสุราษฎร์ธานี)
+  unit text,                        -- สภ. ที่สังกัด (19 แห่งในจังหวัดสุราษฎร์ธานี)
   role text not null default 'officer' check (role in ('officer', 'admin')),
+  phone text,                       -- เบอร์โทรศัพท์ติดต่อ
+  email text,                       -- อีเมล Google
+  is_onboarded boolean default false, -- บันทึกข้อมูลส่วนตัวครั้งแรกหรือยัง
   created_at timestamptz default now()
 );
 
@@ -47,6 +50,19 @@ create table if not exists public.submissions (
   created_at timestamptz default now()
 );
 
+-- 5. AI TOOLS TABLE (Module เครื่องมือ AI)
+create table if not exists public.ai_tools (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,               -- 2 = ชื่อ
+  category text not null,           -- หมวดหมู่ (เช่น ข้อความ, รูปภาพ, วิดีโอ, รายงาน, AI Agent)
+  description text,                 -- 3 = รายละเอียด
+  how_it_helps text,                -- 4 = คำแนะนำ / ช่วยงานอะไร
+  url text not null,                -- 5 = URL
+  image_url text,                   -- 1 = โลโก้
+  created_by uuid references public.profiles(id) on delete set null,
+  created_at timestamptz default now()
+);
+
 -- ==========================================
 -- ROW LEVEL SECURITY (RLS) POLICIES
 -- ==========================================
@@ -56,6 +72,7 @@ alter table public.profiles enable row level security;
 alter table public.lessons enable row level security;
 alter table public.news enable row level security;
 alter table public.submissions enable row level security;
+alter table public.ai_tools enable row level security;
 
 -- PROFILES POLICIES
 create policy "Users can view all profiles"
@@ -153,6 +170,38 @@ create policy "Admins delete submissions"
     )
   );
 
+-- AI TOOLS POLICIES
+create policy "Everyone can view ai_tools"
+  on public.ai_tools for select
+  using (true);
+
+create policy "Admins can insert ai_tools"
+  on public.ai_tools for insert
+  with check (
+    exists (
+      select 1 from public.profiles
+      where id = auth.uid() and role = 'admin'
+    )
+  );
+
+create policy "Admins can update ai_tools"
+  on public.ai_tools for update
+  using (
+    exists (
+      select 1 from public.profiles
+      where id = auth.uid() and role = 'admin'
+    )
+  );
+
+create policy "Admins can delete ai_tools"
+  on public.ai_tools for delete
+  using (
+    exists (
+      select 1 from public.profiles
+      where id = auth.uid() and role = 'admin'
+    )
+  );
+
 -- TRIGGER FOR AUTOMATIC PROFILE CREATION ON AUTH SIGNUP
 create or replace function public.handle_new_user()
 returns trigger as $$
@@ -186,3 +235,9 @@ on conflict (id) do nothing;
 insert into public.news (title, body, urgent) values
   ('กำหนดการส่งงานฝึกปฏิบัติพรอมต์ประจำวัน', 'ขอให้ผู้เข้าอบรมทุกท่านฝึกเขียนพรอมต์ตามหัวข้อที่กำหนด และแนบภาพผลลัพธ์ลงในระบบก่อนเวลา 16.30 น.', true),
   ('เอกสารประกอบการสอนและคู่มือพรอมต์ตัวอย่าง', 'ดาวน์โหลดสไลด์วิทยากรและตัวอย่าง Structure Prompt สำหรับงานตำรวจได้ในเมนูบทเรียน', false);
+
+insert into public.ai_tools (name, category, description, how_it_helps, url, image_url) values
+  ('ChatGPT', 'ข้อความ', 'ผู้ช่วย AI อัจฉริยะจาก OpenAI', 'ช่วยร่างหนังสือราชการ สรุปรายงาน และตอบคำถามกฎหมายเบื้องต้น', 'https://chat.openai.com', 'https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg'),
+  ('Midjourney', 'รูปภาพ', 'เครื่องมือสร้างภาพจากข้อความ (Text-to-Image)', 'สร้างภาพประกอบสื่อประชาสัมพันธ์ และภาพจำลองเหตุการณ์สำหรับงานสืบสวน', 'https://www.midjourney.com', 'https://upload.wikimedia.org/wikipedia/commons/e/e6/Midjourney_Emblem.png'),
+  ('Copilot', 'AI Agent', 'ผู้ช่วยอัจฉริยะจาก Microsoft', 'ช่วยสร้างสไลด์นำเสนอ ค้นหาข้อมูลบนเว็บไซต์อย่างรวดเร็ว และสรุปการประชุม', 'https://copilot.microsoft.com', 'https://upload.wikimedia.org/wikipedia/commons/2/28/Microsoft_Copilot_logo.svg');
+

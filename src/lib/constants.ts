@@ -85,6 +85,9 @@ export interface UserProfile {
   rank?: string;
   unit: string;
   role: 'officer' | 'admin';
+  phone?: string;
+  email?: string;
+  is_onboarded?: boolean;
 }
 
 export interface Post {

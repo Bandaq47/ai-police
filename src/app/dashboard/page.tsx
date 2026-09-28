@@ -89,6 +89,19 @@ const MENU_ITEMS = [
     ctaColor: "text-violet-700",
     accent: "from-violet-50 to-white",
   },
+  {
+    href: "/ai-tools",
+    label: "เครื่องมือ AI",
+    desc: "รวมเครื่องมือ AI ที่ช่วยลดเวลาและเพิ่มประสิทธิภาพงานตำรวจ",
+    icon: Sparkles,
+    color: "text-fuchsia-700",
+    bg: "bg-fuchsia-50",
+    hoverBg: "group-hover:bg-fuchsia-600",
+    hoverText: "group-hover:text-white",
+    cta: "ดูเครื่องมือทั้งหมด",
+    ctaColor: "text-fuchsia-700",
+    accent: "from-fuchsia-50 to-white",
+  },
 ];
 
 export default function OfficerDashboardPage() {

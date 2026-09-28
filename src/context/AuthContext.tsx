@@ -12,6 +12,7 @@ interface AuthContextType {
   posts: PostWithDetails[];
   loading: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; message?: string }>;
+  loginWithGoogle: () => Promise<{ success: boolean; message?: string }>;
   register: (data: { full_name: string; rank?: string; unit: string; email: string; password: string }) => Promise<{ success: boolean; message?: string }>;
   logout: () => void;
   addLesson: (title: string, description: string) => Promise<boolean>;
@@ -25,6 +26,7 @@ interface AuthContextType {
   unlikePost: (postId: string) => Promise<boolean>;
   addComment: (postId: string, content: string) => Promise<boolean>;
   deleteComment: (commentId: string) => Promise<boolean>;
+  updateProfile: (profileData: { full_name: string; rank?: string; unit: string; phone?: string }) => Promise<{ success: boolean; message?: string }>;
   fetchPosts: () => Promise<void>;
   refreshData: () => void;
 }
@@ -53,12 +55,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .from('profiles')
         .select('*')
         .eq('id', session.user.id)
-        .single();
+        .maybeSingle();
         
       if (profile) {
-        setUser(profile as UserProfile);
+        setUser({
+          ...profile,
+          email: session.user.email || profile.email,
+          is_onboarded: profile.is_onboarded ?? Boolean(profile.unit && profile.full_name),
+        } as UserProfile);
       } else {
-        setUser(null);
+        // Logged in with Google, but no profile row yet
+        setUser({
+          id: session.user.id,
+          full_name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || '',
+          unit: '',
+          role: 'officer',
+          email: session.user.email,
+          is_onboarded: false,
+        });
       }
     } catch (error) {
       console.error("Error fetching user profile:", error);
@@ -278,6 +292,53 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       });
       if (error) throw error;
+      return { success: true };
+    } catch (error: any) {
+      return { success: false, message: error.message };
+    }
+  };
+
+  const loginWithGoogle = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      if (error) throw error;
+      return { success: true };
+    } catch (error: any) {
+      return { success: false, message: error.message };
+    }
+  };
+
+  const updateProfile = async (profileData: {
+    full_name: string;
+    rank?: string;
+    unit: string;
+    phone?: string;
+  }) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return { success: false, message: "กรุณาเข้าสู่ระบบก่อน" };
+
+      const payload = {
+        id: session.user.id,
+        full_name: profileData.full_name,
+        rank: profileData.rank || null,
+        unit: profileData.unit,
+        phone: profileData.phone || null,
+        email: session.user.email,
+        is_onboarded: true,
+      };
+
+      const { error } = await supabase
+        .from('profiles')
+        .upsert(payload);
+
+      if (error) throw error;
+      await fetchUserAndProfile();
       return { success: true };
     } catch (error: any) {
       return { success: false, message: error.message };
@@ -568,6 +629,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         posts,
         loading,
         login,
+        loginWithGoogle,
         register,
         logout,
         addLesson,
@@ -581,6 +643,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         unlikePost,
         addComment,
         deleteComment,
+        updateProfile,
         fetchPosts,
         refreshData
       }}

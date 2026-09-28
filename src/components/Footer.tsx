@@ -7,8 +7,9 @@ export default function Footer() {
         <div className="flex items-center justify-center gap-2 text-slate-800 font-semibold">
           <span>AI POLICE — โครงการฝึกอบรมการใช้งานปัญญาประดิษฐ์เพื่อพัฒนาประสิทธิภาพงานตำรวจ</span>
         </div>
-        <p className="text-slate-500">
+        <p className="text-slate-500"> 
           ตำรวจภูธรจังหวัดสุราษฎร์ธานี • 19 สถานีตำรวจภูธรในสังกัด
+          
         </p>
         <p className="text-slate-400 text-[11px]">
           © {new Date().getFullYear()} AI POLICE System. All rights reserved. Powered by Next.js & Supabase.
@@ -17,3 +18,5 @@ export default function Footer() {
     </footer>
   );
 }
+
+

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import {
   Shield,
@@ -53,16 +53,12 @@ const SLIDES = [
 // Component หลัก
 // ====================================================
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { user, loading: authLoading, loginWithGoogle } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const [role, setRole] = useState<"officer" | "admin">("officer");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [adminPassword, setAdminPassword] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   // Slideshow state
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -83,36 +79,39 @@ export default function LoginPage() {
     return () => clearInterval(timer);
   }, [isAutoPlaying, nextSlide]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-
-    if (!email) {
-      setError("กรุณากรอกอีเมล");
-      return;
-    }
-    if (role === "officer" && !password) {
-      setError("กรุณากรอกรหัสผ่าน");
-      return;
-    }
-    if (role === "admin" && !adminPassword) {
-      setError("กรุณากรอกรหัสผ่านวิทยากร / ผู้ดูแลระบบ");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const passwordToUse = role === "admin" ? adminPassword : password;
-      const res = await login(email, passwordToUse);
-      if (res.success) {
-        router.push(role === "admin" ? "/admin/dashboard" : "/lessons");
+  // If already logged in, redirect
+  useEffect(() => {
+    if (!authLoading && user) {
+      if (!user.is_onboarded) {
+        router.push("/onboarding");
+      } else if (user.role === "admin") {
+        router.push("/admin/dashboard");
       } else {
-        setError(res.message || "รหัสผ่านหรืออีเมลไม่ถูกต้อง");
+        router.push("/lessons");
       }
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "เกิดข้อผิดพลาดในการเข้าสู่ระบบ");
-    } finally {
-      setLoading(false);
+    }
+  }, [user, authLoading, router]);
+
+  // Check for auth callback errors
+  useEffect(() => {
+    const errorParam = searchParams.get('error');
+    if (errorParam === 'auth_callback_error') {
+      setError('การเข้าสู่ระบบด้วย Google ไม่สำเร็จ หรือยังไม่ได้เปิดใช้งาน Google Provider บนระบบ กรุณาลองใหม่อีกครั้ง');
+    }
+  }, [searchParams]);
+
+  const handleGoogleLogin = async () => {
+    setError("");
+    setGoogleLoading(true);
+    try {
+      const res = await loginWithGoogle();
+      if (!res.success) {
+        setError(res.message || 'ไม่สามารถเข้าสู่ระบบด้วย Google ได้');
+        setGoogleLoading(false);
+      }
+    } catch {
+      setError('เกิดข้อผิดพลาด กรุณาลองใหม่');
+      setGoogleLoading(false);
     }
   };
 
@@ -121,7 +120,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex bg-white">
       {/* ============================================
-          ซ้าย: ฟอร์มเข้าสู่ระบบ
+          ซ้าย: กล่องเข้าสู่ระบบด้วย Google
           ============================================ */}
       <div className="w-full lg:w-[45%] xl:w-[42%] flex flex-col justify-center px-8 sm:px-12 xl:px-16 py-12 relative bg-white">
         {/* Logo & Brand */}
@@ -129,9 +128,12 @@ export default function LoginPage() {
           initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mb-10"
+          className="mb-8"
         >
-          <div className="flex items-center gap-3 mb-8">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 rounded-xl bg-[#661D27]/10 flex items-center justify-center text-[#661D27]">
+              <Shield className="w-5 h-5" />
+            </div>
             <div>
               <span className="text-lg font-bold text-slate-900 tracking-tight">AI POLICE</span>
               <p className="text-[10px] text-slate-400 leading-none mt-0.5 tracking-wide uppercase">
@@ -140,56 +142,20 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <h1 className="text-3xl font-bold text-slate-900 leading-snug">
-            ยินดีต้อนรับสำหรับการเรียนรู้ AI 👋
+          <h1 className="text-3xl font-extrabold text-slate-900 leading-snug">
+            เข้าสู่ระบบการเรียนรู้ AI 👋
           </h1>
           <p className="text-slate-500 text-sm mt-2 leading-relaxed">
-            เข้าสู่ระบบเพื่อเริ่มการเรียนรู้ AI
+            ระบบฝึกอบรมและส่งผลงานปัญญาประดิษฐ์ (AI) สำหรับข้าราชการตำรวจและวิทยากร
           </p>
         </motion.div>
 
-        {/* Role Switcher */}
+        {/* Action Box */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="mb-6"
-        >
-          <div className="flex bg-slate-100 p-1 rounded-xl gap-1">
-            <button
-              type="button"
-              onClick={() => { setRole("officer"); setError(""); }}
-              className={`flex-1 py-2.5 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
-                role === "officer"
-                  ? "bg-white text-[#661D27] shadow-sm shadow-slate-200"
-                  : "text-slate-500 hover:text-slate-700"
-              }`}
-            >
-              <UserCheck className="w-3.5 h-3.5" />
-              ข้าราชการตำรวจ
-            </button>
-            <button
-              type="button"
-              onClick={() => { setRole("admin"); setError(""); }}
-              className={`flex-1 py-2.5 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
-                role === "admin"
-                  ? "bg-amber-400 text-amber-950 shadow-sm"
-                  : "text-slate-500 hover:text-slate-700"
-              }`}
-            >
-              <ShieldAlert className="w-3.5 h-3.5" />
-              วิทยากร / Admin
-            </button>
-          </div>
-        </motion.div>
-
-        {/* Form */}
-        <motion.form
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.15 }}
-          onSubmit={handleSubmit}
-          className="space-y-4"
+          className="space-y-6"
         >
           {/* Error Message */}
           <AnimatePresence>
@@ -198,116 +164,69 @@ export default function LoginPage() {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
-                className="p-3 bg-red-50 border border-red-100 rounded-xl text-red-600 text-xs font-medium"
+                className="p-4 bg-red-50 border border-red-200 rounded-2xl text-red-600 text-xs font-medium leading-relaxed"
               >
                 ⚠️ {error}
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* Email Field */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-600 tracking-wide">
-              อีเมล (Email address)
-            </label>
-            <div className="relative">
-              <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5 pointer-events-none" />
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder={role === "admin" ? "admin@police.go.th" : "officer@police.go.th"}
-                className="w-full pl-10 pr-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl
-                           focus:outline-none focus:ring-2 focus:ring-[#661D27]/25 focus:border-[#661D27]
-                           focus:bg-white transition-all placeholder:text-slate-300"
-              />
+          {/* Feature Badges Card */}
+          <div className="p-5 rounded-2xl bg-slate-50 border border-slate-100 space-y-3">
+            <div className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              ระบบเข้าสู่ระบบความปลอดภัยสูง (Single Sign-On)
             </div>
+            <ul className="text-xs text-slate-500 space-y-2">
+              <li className="flex items-center gap-2">
+                <span className="text-emerald-600 font-bold">✓</span>
+                <span>เข้าสู่ระบบรวดเร็ว ไม่ต้องจำรหัสผ่านแยก</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-emerald-600 font-bold">✓</span>
+                <span>เชื่อมต่อกับบัญชี Google / Gmail ทันที</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-emerald-600 font-bold">✓</span>
+                <span>เข้าใช้งานครั้งแรก ระบบจะให้กรอกยศและสังกัดอัตโนมัติ</span>
+              </li>
+            </ul>
           </div>
 
-          {/* Password Field */}
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold text-slate-600 tracking-wide">
-                {role === "admin" ? "รหัสผ่านวิทยากร (Admin Code)" : "รหัสผ่าน (Password)"}
-              </label>
-            </div>
-            <div className="relative">
-              <Lock
-                className={`w-4 h-4 absolute left-3.5 top-3.5 pointer-events-none ${
-                  role === "admin" ? "text-amber-500" : "text-slate-400"
-                }`}
-              />
-              <input
-                type={showPassword ? "text" : "password"}
-                required
-                value={role === "admin" ? adminPassword : password}
-                onChange={(e) =>
-                  role === "admin"
-                    ? setAdminPassword(e.target.value)
-                    : setPassword(e.target.value)
-                }
-                placeholder={role === "admin" ? "กรอกรหัสแอดมิน" : "••••••••"}
-                className={`w-full pl-10 pr-11 py-3 text-sm border rounded-xl
-                           focus:outline-none focus:bg-white transition-all placeholder:text-slate-300 ${
-                             role === "admin"
-                               ? "bg-amber-50/60 border-amber-200 focus:ring-2 focus:ring-amber-400/25 focus:border-amber-400"
-                               : "bg-slate-50 border-slate-200 focus:ring-2 focus:ring-[#661D27]/25 focus:border-[#661D27]"
-                           }`}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-600 transition-colors"
-              >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
-            </div>
-          </div>
-
-          {/* Submit Button */}
+          {/* Google Sign-In Button (Large & Prominent) */}
           <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3.5 oxblood-gradient text-white rounded-xl font-semibold text-sm
-                       shadow-lg shadow-red-950/20 hover:shadow-xl hover:shadow-red-950/25
-                       hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 group
-                       disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none mt-2"
+            type="button"
+            onClick={handleGoogleLogin}
+            disabled={googleLoading}
+            className="w-full py-4 px-6 bg-white border-2 border-slate-200 hover:border-[#661D27]/40 rounded-2xl font-bold text-sm text-slate-800 shadow-md hover:shadow-xl hover:bg-slate-50/80 hover:-translate-y-0.5 active:scale-[0.99] transition-all flex items-center justify-center gap-3.5 group cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
           >
-            {loading ? (
+            {googleLoading ? (
               <>
-                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                <span>กำลังตรวจสอบ...</span>
+                <span className="w-5 h-5 border-2 border-slate-300 border-t-[#661D27] rounded-full animate-spin" />
+                <span>กำลังเชื่อมต่อกับ Google...</span>
               </>
             ) : (
               <>
-                <span>เข้าสู่ระบบ</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                {/* Google SVG Icon */}
+                <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" />
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                </svg>
+                <span className="text-base text-slate-800">เข้าสู่ระบบด้วย Google</span>
+                <ArrowRight className="w-4 h-4 ml-auto text-slate-400 group-hover:text-[#661D27] group-hover:translate-x-1 transition-all" />
               </>
             )}
           </button>
-        </motion.form>
 
-        {/* Register Link */}
-        {role === "officer" && (
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="text-center text-xs text-slate-500 mt-6"
-          >
-            ยังไม่มีบัญชีผู้เข้าอบรม?{" "}
-            <Link
-              href="/register"
-              className="font-semibold text-[#661D27] hover:underline underline-offset-2"
-            >
-              ลงทะเบียนสมัครสมาชิก
-            </Link>
-          </motion.p>
-        )}
+          <p className="text-center text-xs text-slate-400 pt-2">
+            สามารถใช้บัญชี Gmail ส่วนตัว หรือบัญชีอีเมลองค์กรเข้าสู่ระบบได้
+          </p>
+        </motion.div>
 
         {/* Footer note */}
-        <p className="absolute bottom-6 left-0 right-0 text-center text-[10px] text-slate-300">
+        <p className="absolute bottom-6 left-0 right-0 text-center text-[10px] text-slate-400">
           © 2026 ตำรวจภูธรจังหวัดสุราษฎร์ธานี • ระบบ AI POLICE v1.0
         </p>
       </div>

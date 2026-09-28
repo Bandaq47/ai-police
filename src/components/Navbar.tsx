@@ -16,6 +16,7 @@ import {
   Menu,
   X,
   Users,
+  Sparkles,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -24,6 +25,12 @@ export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  React.useEffect(() => {
+    if (user && user.is_onboarded === false && pathname !== '/onboarding') {
+      router.push('/onboarding');
+    }
+  }, [user, pathname, router]);
 
   if (!user) return null;
 
@@ -41,6 +48,7 @@ export default function Navbar() {
     { href: "/submit",          label: "ส่งงาน",         icon: Send },
     { href: "/my-submissions",  label: "ประวัติส่งงาน",  icon: History },
     { href: "/news",            label: "ข่าวสาร",        icon: Newspaper },
+    { href: "/ai-tools",        label: "AI Tools",       icon: Sparkles },
     { href: "/community",       label: "ชุมชน",          icon: Users },
   ];
 
@@ -49,6 +57,7 @@ export default function Navbar() {
     { href: "/admin/submissions",  label: "ดูผลงาน",        icon: History },
     { href: "/admin/lessons",      label: "จัดการบทเรียน",  icon: BookOpen },
     { href: "/admin/news",         label: "จัดการข่าวสาร",  icon: Newspaper },
+    { href: "/admin/ai-tools",     label: "จัดการ AI Tools", icon: Sparkles },
     { href: "/community",          label: "ชุมชน",          icon: Users },
   ];
 
