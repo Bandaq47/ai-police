@@ -120,22 +120,22 @@ export default function AIToolsPage() {
             <p className="text-slate-500">ยังไม่มีเครื่องมือในหมวดหมู่นี้</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
             {filteredTools.map((tool, i) => (
               <motion.div
                 key={tool.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.05 * i }}
-                className="bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden group flex flex-col"
+                className="bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden group flex flex-col h-full"
               >
                 {/* Top Half: Logo / Header */}
-                <div className="p-6 pb-4 flex flex-col items-center text-center border-b border-slate-50 bg-slate-50/50 relative">
+                <div className="p-6 pb-4 flex flex-col items-center text-center border-b border-slate-50 bg-slate-50/50 relative min-h-[9rem]">
                   <div className="absolute top-4 right-4 bg-white/80 backdrop-blur text-xs font-semibold px-2.5 py-1 rounded-md text-slate-500 shadow-sm">
                     {tool.category}
                   </div>
-                  
-                  <div className="w-20 h-20 rounded-2xl bg-white shadow-sm flex items-center justify-center p-3 mb-4 overflow-hidden border border-slate-100 group-hover:scale-105 transition-transform">
+
+                  <div className="w-16 h-16 rounded-2xl bg-white shadow-sm flex items-center justify-center p-2.5 mb-3 overflow-hidden border border-slate-100 group-hover:scale-105 transition-transform shrink-0">
                     {tool.image_url ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
@@ -143,46 +143,49 @@ export default function AIToolsPage() {
                         alt={tool.name}
                         className="w-full h-full object-contain"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg'; // Fallback
+                          (e.target as HTMLImageElement).src = 'https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg';
                         }}
                       />
                     ) : (
-                      <Bot className="w-10 h-10 text-slate-300" />
+                      <Bot className="w-8 h-8 text-slate-300" />
                     )}
                   </div>
-                  <h3 className="text-lg font-bold text-slate-900 group-hover:text-[#661D27] transition-colors">
+                  <h3 className="text-base font-bold text-slate-900 group-hover:text-[#661D27] transition-colors leading-tight line-clamp-2">
                     {tool.name}
                   </h3>
                 </div>
 
                 {/* Bottom Half: Details */}
-                <div className="p-6 flex flex-col flex-1 gap-4">
+                <div className="p-5 flex flex-col flex-1 gap-3">
+                  {/* รายละเอียด — fixed 2-line height */}
                   <div>
                     <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
                       รายละเอียด
                     </div>
-                    <p className="text-sm text-slate-600 line-clamp-2">
+                    <p className="text-sm text-slate-600 leading-snug min-h-[2.5rem] max-h-[3.5rem] scroll-thin pr-1">
                       {tool.description}
                     </p>
                   </div>
-                  
+
+                  {/* ช่วยงาน — fills remaining space, clamp 4 lines */}
                   <div className="flex-1">
                     <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
                       ช่วยงานอะไรได้บ้าง
                     </div>
-                    <div className="text-sm text-slate-700 bg-amber-50/50 p-3 rounded-xl border border-amber-100/50">
+                    <div className="text-sm text-slate-700 bg-amber-50/50 p-3 rounded-xl border border-amber-100/50 min-h-[5rem] max-h-[7rem] scroll-thin-amber leading-relaxed">
                       {tool.how_it_helps}
                     </div>
                   </div>
 
+                  {/* ปุ่มชิดล่างเสมอ */}
                   <a
                     href={tool.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-2 w-full py-2.5 bg-slate-900 hover:bg-[#661D27] text-white rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2"
+                    className="mt-auto w-full py-2.5 bg-slate-900 hover:bg-[#661D27] text-white rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2 group/btn"
                   >
                     เข้าสู่เว็บไซต์
-                    <ExternalLink className="w-4 h-4" />
+                    <ExternalLink className="w-4 h-4 group-hover/btn:translate-x-0.5 transition-transform" />
                   </a>
                 </div>
               </motion.div>

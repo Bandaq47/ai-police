@@ -13,7 +13,8 @@ import {
   CheckSquare, 
   Square, 
   Bot,
-  ExternalLink
+  ExternalLink,
+  Pencil
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -34,6 +35,7 @@ export default function AdminAIToolsPage() {
   const [loading, setLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [editingTool, setEditingTool] = useState<AITool | null>(null);
 
   useEffect(() => {
     if (!user) router.push("/login");
@@ -134,7 +136,11 @@ export default function AdminAIToolsPage() {
           {/* Form Component */}
           <div className="lg:col-span-5">
             <div className="sticky top-24">
-              <AdminAIToolForm onSuccess={fetchTools} />
+              <AdminAIToolForm
+                onSuccess={fetchTools}
+                initialData={editingTool}
+                onCancel={() => setEditingTool(null)}
+              />
             </div>
           </div>
 
@@ -246,11 +252,22 @@ export default function AdminAIToolsPage() {
                         </div>
                       </div>
                       
-                      <div className="px-4 pb-4 border-t border-slate-50 pt-3 mt-auto">
+                      <div className="px-4 pb-4 border-t border-slate-50 pt-3 mt-auto space-y-3">
                         <p className="text-[11px] text-slate-500 line-clamp-2">
                           <span className="font-semibold">ช่วยงาน: </span>
                           {item.how_it_helps}
                         </p>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditingTool(item);
+                            window.scrollTo({ top: 0, behavior: "smooth" });
+                          }}
+                          className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-xl border border-amber-300 text-amber-600 bg-amber-50 hover:bg-amber-100 text-xs font-bold transition-all active:scale-95"
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                          แก้ไข
+                        </button>
                       </div>
                     </div>
                   );

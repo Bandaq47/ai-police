@@ -26,6 +26,18 @@
 ::-webkit-scrollbar-thumb { background: #C5A0A5; border-radius: 99px; }
 ::-webkit-scrollbar-thumb:hover { background: #661D27; }
 
+/* Thin scrollbar for card content */
+.scroll-thin { overflow-y: auto; scrollbar-width: thin; scrollbar-color: #d1d5db transparent; }
+.scroll-thin::-webkit-scrollbar { width: 4px; }
+.scroll-thin::-webkit-scrollbar-track { background: transparent; }
+.scroll-thin::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 99px; }
+.scroll-thin::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+.scroll-thin-amber { overflow-y: auto; scrollbar-width: thin; scrollbar-color: #fcd34d transparent; }
+.scroll-thin-amber::-webkit-scrollbar { width: 4px; }
+.scroll-thin-amber::-webkit-scrollbar-track { background: transparent; }
+.scroll-thin-amber::-webkit-scrollbar-thumb { background: #fcd34d; border-radius: 99px; }
+.scroll-thin-amber::-webkit-scrollbar-thumb:hover { background: #f59e0b; }
+
 /* ============================
    Core Brand Gradients
    ============================ */

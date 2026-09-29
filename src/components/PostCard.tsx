@@ -15,7 +15,8 @@ import {
   X,
   ShieldCheck,
   Check,
-  MoreHorizontal
+  MoreHorizontal,
+  Pencil
 } from "lucide-react";
 
 interface PostCardProps {
@@ -43,7 +44,7 @@ function formatIgTime(dateStr: string): string {
 }
 
 export default function PostCard({ post, onImageClick }: PostCardProps) {
-  const { user, likePost, unlikePost, addComment, deletePost, deleteComment } = useAuth();
+  const { user, likePost, unlikePost, addComment, deletePost, deleteComment, editPost } = useAuth();
   const [commentText, setCommentText] = useState("");
   const [submittingComment, setSubmittingComment] = useState(false);
   const [likeLoading, setLikeLoading] = useState(false);
@@ -53,6 +54,9 @@ export default function PostCard({ post, onImageClick }: PostCardProps) {
   const [copied, setCopied] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isTextExpanded, setIsTextExpanded] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editContent, setEditContent] = useState(post.content || "");
+  const [editLoading, setEditLoading] = useState(false);
   const commentInputRef = useRef<HTMLInputElement>(null);
 
   const isOwner = user?.id === post.user_id;
@@ -104,6 +108,16 @@ export default function PostCard({ post, onImageClick }: PostCardProps) {
       setShowAllComments(true);
     }
     setSubmittingComment(false);
+  };
+
+  const handleEdit = async () => {
+    if (!editContent.trim() || editLoading) return;
+    setEditLoading(true);
+    const ok = await editPost(post.id, editContent.trim());
+    if (ok) {
+      setIsEditing(false);
+    }
+    setEditLoading(false);
   };
 
   const handleDelete = async () => {
@@ -219,8 +233,18 @@ export default function PostCard({ post, onImageClick }: PostCardProps) {
           </div>
         </div>
 
-        {/* Action / Delete Menu */}
+        {/* Action / Edit / Delete Menu */}
         <div className="flex items-center gap-1 shrink-0 ml-2">
+          {/* Edit Button - only post owner */}
+          {isOwner && !isEditing && (
+            <button
+              onClick={() => { setEditContent(post.content || ""); setIsEditing(true); }}
+              className="p-1.5 rounded-full text-slate-400 hover:text-blue-500 hover:bg-blue-50 transition-colors"
+              title="แก้ไขโพสต์"
+            >
+              <Pencil className="w-4 h-4" />
+            </button>
+          )}
           {canDelete && (
             <div>
               {!confirmDelete ? (
@@ -377,15 +401,49 @@ export default function PostCard({ post, onImageClick }: PostCardProps) {
       {/* ── 5. Caption / Content (Instagram Style) ── */}
       {post.content && (
         <div className="px-4 pt-1.5 pb-2 text-sm text-slate-800 leading-relaxed">
-          <span className="font-bold text-slate-900 mr-2">{authorName}</span>
-          <span className="whitespace-pre-wrap">{displayContent}</span>
-          {isLongText && (
-            <button
-              onClick={() => setIsTextExpanded(!isTextExpanded)}
-              className="ml-1 text-slate-400 hover:text-slate-600 text-xs font-medium cursor-pointer"
-            >
-              {isTextExpanded ? "ซ่อน" : "ดูเพิ่มเติม"}
-            </button>
+          {isEditing ? (
+            <div className="space-y-2">
+              <textarea
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                className="w-full border border-blue-200 rounded-xl p-3 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-400/50 resize-none bg-blue-50/30"
+                rows={4}
+                autoFocus
+              />
+              <div className="flex items-center gap-2 justify-end">
+                <button
+                  onClick={() => setIsEditing(false)}
+                  className="px-3 py-1.5 text-xs font-semibold text-slate-500 hover:text-slate-700 rounded-lg hover:bg-slate-100 transition-colors"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  onClick={handleEdit}
+                  disabled={editLoading || !editContent.trim()}
+                  className="px-4 py-1.5 text-xs font-bold text-white bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors disabled:opacity-40 flex items-center gap-1.5"
+                >
+                  {editLoading ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Check className="w-3.5 h-3.5" />
+                  )}
+                  บันทึก
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <span className="font-bold text-slate-900 mr-2">{authorName}</span>
+              <span className="whitespace-pre-wrap">{displayContent}</span>
+              {isLongText && (
+                <button
+                  onClick={() => setIsTextExpanded(!isTextExpanded)}
+                  className="ml-1 text-slate-400 hover:text-slate-600 text-xs font-medium cursor-pointer"
+                >
+                  {isTextExpanded ? "ซ่อน" : "ดูเพิ่มเติม"}
+                </button>
+              )}
+            </>
           )}
         </div>
       )}

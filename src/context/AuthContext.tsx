@@ -22,6 +22,7 @@ interface AuthContextType {
   addSubmission: (submissionData: { lesson_id: string; prompt_text: string; notes?: string; image_url?: string }) => Promise<boolean>;
   addPost: (content: string, imageFile?: File) => Promise<{ success: boolean; errorMessage?: string }>;
   deletePost: (id: string) => Promise<boolean>;
+  editPost: (id: string, content: string) => Promise<boolean>;
   likePost: (postId: string) => Promise<boolean>;
   unlikePost: (postId: string) => Promise<boolean>;
   addComment: (postId: string, content: string) => Promise<boolean>;
@@ -522,6 +523,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   };
 
+  const editPost = async (id: string, content: string) => {
+    if (!user) return false;
+    const { error } = await supabase
+      .from('posts')
+      .update({ content })
+      .eq('id', id)
+      .eq('user_id', user.id);
+    if (!error) {
+      // Optimistic update
+      setPosts(prev => prev.map(p => p.id === id ? { ...p, content } : p));
+      return true;
+    }
+    console.error("Error editing post:", error);
+    return false;
+  };
+
   const deletePost = async (id: string) => {
     if (!user) return false;
     const { error } = await supabase.from('posts').delete().eq('id', id);
@@ -639,6 +656,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         addSubmission,
         addPost,
         deletePost,
+        editPost,
         likePost,
         unlikePost,
         addComment,
