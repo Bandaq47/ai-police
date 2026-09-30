@@ -23,6 +23,7 @@ export default function OnboardingPage() {
 
   const [fullName, setFullName] = useState("");
   const [rank, setRank] = useState<string>(POLICE_RANKS[6]); // ค่าเริ่มต้น เช่น ร.ต.อ.
+  const [gender, setGender] = useState<"male" | "female">("male");
   const [unit, setUnit] = useState<string>(SURAT_POLICE_STATIONS[0]);
   const [phone, setPhone] = useState("");
   const [saving, setSaving] = useState(false);
@@ -46,7 +47,13 @@ export default function OnboardingPage() {
         setFullName(user.full_name);
       }
       if (user.rank) {
-        setRank(user.rank);
+        if (user.rank.endsWith("หญิง")) {
+          setRank(user.rank.replace("หญิง", ""));
+          setGender("female");
+        } else {
+          setRank(user.rank);
+          setGender("male");
+        }
       }
       if (user.unit) {
         setUnit(user.unit);
@@ -72,9 +79,14 @@ export default function OnboardingPage() {
 
     setSaving(true);
     try {
+      let finalRank = rank;
+      if (gender === "female" && rank) {
+        finalRank = rank + "หญิง";
+      }
+
       const res = await updateProfile({
         full_name: fullName.trim(),
-        rank: rank || undefined,
+        rank: finalRank || undefined,
         unit,
         phone: phone.trim() || undefined,
       });
@@ -157,6 +169,37 @@ export default function OnboardingPage() {
                   value={user?.email || ""}
                   className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-slate-100 border border-slate-200 rounded-xl text-slate-600 cursor-not-allowed font-medium"
                 />
+              </div>
+            </div>
+
+            {/* Gender */}
+            <div className="space-y-2 pb-1">
+              <label className="text-xs font-bold text-slate-700">
+                เพศ (Gender) *
+              </label>
+              <div className="flex gap-4">
+                <label className="flex items-center justify-center gap-2 cursor-pointer p-3 border border-slate-200 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors flex-1 shadow-sm">
+                  <input
+                    type="radio"
+                    name="gender"
+                    value="male"
+                    checked={gender === "male"}
+                    onChange={(e) => setGender(e.target.value as "male" | "female")}
+                    className="w-4 h-4 text-[#661D27] focus:ring-[#661D27]"
+                  />
+                  <span className="text-sm font-medium text-slate-700">ชาย</span>
+                </label>
+                <label className="flex items-center justify-center gap-2 cursor-pointer p-3 border border-slate-200 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors flex-1 shadow-sm">
+                  <input
+                    type="radio"
+                    name="gender"
+                    value="female"
+                    checked={gender === "female"}
+                    onChange={(e) => setGender(e.target.value as "male" | "female")}
+                    className="w-4 h-4 text-[#661D27] focus:ring-[#661D27]"
+                  />
+                  <span className="text-sm font-medium text-slate-700">หญิง</span>
+                </label>
               </div>
             </div>
 
