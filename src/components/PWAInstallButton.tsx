@@ -33,6 +33,8 @@ export default function PWAInstallButton() {
     // Show banner after 3 seconds on iOS
     if (ios) {
       const timer = setTimeout(() => {
+        // iOS ไม่มี beforeinstallprompt → ตรวจ standalone แทน
+        // ถ้าไม่ได้รันเป็นแอป = ยังไม่ติดตั้ง → แสดงปุ่มได้
         const dismissed = localStorage.getItem("pwa-ios-dismissed");
         if (!dismissed) setShowBanner(true);
       }, 3000);
@@ -43,10 +45,12 @@ export default function PWAInstallButton() {
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
-      const dismissed = localStorage.getItem("pwa-dismissed");
-      if (!dismissed) {
-        setTimeout(() => setShowBanner(true), 3000);
-      }
+
+      // ✅ browser ส่ง event มาใหม่ = พร้อมติดตั้งอีกครั้ง (เช่น ลบแอปแล้วกลับมา)
+      // → ล้าง dismiss flag ทิ้งเสมอ เพื่อให้ปุ่มโผล่อีกรอบ
+      localStorage.removeItem("pwa-dismissed");
+
+      setTimeout(() => setShowBanner(true), 3000);
     };
 
     window.addEventListener("beforeinstallprompt", handler);
@@ -69,6 +73,10 @@ export default function PWAInstallButton() {
     if (outcome === "accepted") {
       setIsInstalled(true);
       setShowBanner(false);
+      // ✅ ติดตั้งสำเร็จ → ล้าง flag ทั้งหมด
+      // เพื่อให้ครั้งต่อไปที่ลบแอปแล้วกลับมา ปุ่มจะโผล่อีกครั้ง
+      localStorage.removeItem("pwa-dismissed");
+      localStorage.removeItem("pwa-ios-dismissed");
     }
     setDeferredPrompt(null);
   };
