@@ -129,12 +129,12 @@ export default function NewsCard({
       <div className="absolute top-3 left-3 right-3 z-30 flex items-center justify-between gap-2 pointer-events-none">
         <div>
           {item.urgent ? (
-            <span className="flex items-center gap-1 px-2.5 py-1 bg-red-600 text-white text-[10px] font-bold rounded-full shadow-md animate-pulse">
-              <AlertTriangle className="w-3 h-3" />
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-600 text-white text-xs font-bold rounded-full shadow-md animate-pulse whitespace-nowrap">
+              <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
               ประกาศด่วน
             </span>
           ) : (
-            <span className="px-2.5 py-0.5 bg-black/60 backdrop-blur-md text-white/90 border border-white/10 text-[10px] font-medium rounded-full">
+            <span className="inline-flex items-center px-3 py-1 bg-black/70 backdrop-blur-md text-white text-xs font-semibold rounded-full border border-white/15 whitespace-nowrap">
               {ytUrl ? "วิดีโอแนะนำ" : "ข่าวสาร"}
             </span>
           )}
@@ -174,29 +174,29 @@ export default function NewsCard({
       {/* ── Bottom Content Info ── */}
       <div className="relative z-20 p-4 pt-12 flex flex-col justify-end space-y-2">
         {/* Title */}
-        <h3 className="text-white font-bold text-sm sm:text-base leading-snug line-clamp-2 drop-shadow-md group-hover:text-amber-300 transition-colors">
+        <h3 className="text-white font-bold text-base sm:text-lg leading-snug line-clamp-2 drop-shadow-md group-hover:text-amber-300 transition-colors">
           {item.title}
         </h3>
 
         {/* Optional body preview if short */}
         {!ytUrl && item.body && (
-          <p className="text-white/70 text-xs line-clamp-2 leading-relaxed">
+          <p className="text-white/80 text-sm line-clamp-2 leading-relaxed">
             {cleanBodyText(item.body) || item.body}
           </p>
         )}
 
         {/* Bottom Meta Row (Date, Views, Share) */}
-        <div className="flex items-center justify-between text-[11px] text-white/80 pt-2 border-t border-white/10">
+        <div className="flex items-center justify-between text-xs text-white/90 pt-2.5 border-t border-white/15">
           <div className="flex items-center gap-3">
             {/* Date */}
-            <span className="flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5 text-white/70" />
+            <span className="flex items-center gap-1.5 whitespace-nowrap">
+              <Calendar className="w-4 h-4 text-white/80 shrink-0" />
               <span>{dateStr}</span>
             </span>
 
             {/* Views */}
-            <span className="flex items-center gap-1">
-              <Eye className="w-3.5 h-3.5 text-white/70" />
+            <span className="flex items-center gap-1 whitespace-nowrap">
+              <Eye className="w-4 h-4 text-white/80 shrink-0" />
               <span>{views}</span>
             </span>
           </div>
@@ -206,13 +206,13 @@ export default function NewsCard({
             <button
               type="button"
               onClick={handleShare}
-              className="p-1.5 rounded-md hover:bg-white/20 text-white/80 hover:text-white transition-colors cursor-pointer"
+              className="p-1.5 rounded-md hover:bg-white/20 text-white/90 hover:text-white transition-colors cursor-pointer"
               title="คัดลอกลิงก์"
             >
-              <Share2 className="w-3.5 h-3.5" />
+              <Share2 className="w-4 h-4" />
             </button>
             {copied && (
-              <span className="text-[10px] text-emerald-400 font-medium">
+              <span className="text-xs text-emerald-300 font-semibold whitespace-nowrap">
                 คัดลอกแล้ว
               </span>
             )}

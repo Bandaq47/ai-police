@@ -15,6 +15,8 @@
     background-color: var(--bg-cream);
     color: #1A1A1A;
     font-family: var(--font-prompt), 'Prompt', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
   }
 }
 
@@ -107,6 +109,65 @@
 .recharts-tooltip-wrapper .recharts-default-tooltip {
   border-radius: 12px !important;
   border: 1px solid #e2e8f0 !important;
-  font-size: 12px !important;
+  font-size: 14px !important;
   box-shadow: 0 8px 24px rgba(0,0,0,0.08) !important;
 }
+
+/* ============================
+   Splash Screen & Cross-Platform Utilities
+   - 100dvh (iOS Safari / Android Chrome toolbar fix)
+   - env(safe-area-inset-*) for Notch / Home Bar
+   - prefers-color-scheme: dark
+   ============================ */
+:root {
+  --splash-bg: radial-gradient(ellipse at 50% 32%, #7e212f 0%, #4a131b 55%, #23060b 100%);
+  --splash-card-bg: rgba(255, 255, 255, 0.08);
+  --splash-card-border: rgba(255, 255, 255, 0.15);
+  --splash-glow: rgba(245, 158, 11, 0.18);
+  --splash-text-muted: rgba(255, 255, 255, 0.72);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --splash-bg: radial-gradient(ellipse at 50% 32%, #24080e 0%, #120306 55%, #060102 100%);
+    --splash-card-bg: rgba(18, 5, 8, 0.65);
+    --splash-card-border: rgba(102, 29, 39, 0.35);
+    --splash-glow: rgba(220, 38, 38, 0.22);
+    --splash-text-muted: rgba(255, 255, 255, 0.6);
+  }
+}
+
+.splash-container {
+  height: 100vh;
+  height: 100dvh;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding-top: max(1.25rem, env(safe-area-inset-top, 0px));
+  padding-bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
+  padding-left: max(1.25rem, env(safe-area-inset-left, 0px));
+  padding-right: max(1.25rem, env(safe-area-inset-right, 0px));
+  background: var(--splash-bg);
+}
+
+@keyframes radarSweep {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.animate-radar-sweep {
+  animation: radarSweep 10s linear infinite;
+}
+
+@keyframes auraPulse {
+  0%, 100% {
+    transform: scale(0.94);
+    opacity: 0.45;
+  }
+  50% {
+    transform: scale(1.12);
+    opacity: 0.9;
+  }
+}
+.animate-aura-pulse {
+  animation: auraPulse 3.2s ease-in-out infinite;
+}
+

@@ -125,25 +125,25 @@ export default function AdminDashboardPage() {
           className="flex flex-col sm:flex-row sm:items-end justify-between gap-4"
         >
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-[11px] font-bold mb-2 tracking-wide uppercase">
-              <BarChart2 className="w-3 h-3" />
+            <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-amber-100 text-amber-800 rounded-full text-xs font-bold mb-2 tracking-wide uppercase whitespace-nowrap">
+              <BarChart2 className="w-3.5 h-3.5" />
               Admin Dashboard
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
               สถิติผลการอบรม AI POLICE
             </h1>
-            <p className="text-sm text-slate-500 mt-1">
+            <p className="text-base text-slate-600 mt-1.5 leading-relaxed">
               วิเคราะห์ข้อมูลการส่งงานของข้าราชการตำรวจ 19 สภ. จังหวัดสุราษฎร์ธานี
             </p>
           </div>
 
           <button
             onClick={handleDownloadCSV}
-            className="flex items-center gap-2 px-5 py-3 oxblood-gradient text-white text-sm font-bold
+            className="flex items-center gap-2 px-5 py-3.5 oxblood-gradient text-white text-base font-bold
                        rounded-2xl shadow-lg shadow-red-950/20 hover:shadow-xl hover:shadow-red-950/30
-                       hover:-translate-y-0.5 transition-all group w-fit shrink-0"
+                       hover:-translate-y-0.5 transition-all group w-fit shrink-0 whitespace-nowrap cursor-pointer"
           >
-            <Download className="w-4 h-4 group-hover:-translate-y-0.5 transition-transform" />
+            <Download className="w-4.5 h-4.5 group-hover:-translate-y-0.5 transition-transform" />
             ดาวน์โหลด CSV
           </button>
         </motion.div>
@@ -193,21 +193,21 @@ export default function AdminDashboardPage() {
 
           {/* Chart 1: Bar — by Lesson */}
           <motion.div {...card(0.1)} className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
-            <div className="flex items-center gap-2 mb-5">
-              <div className="p-2 bg-[#661D27]/10 rounded-xl">
-                <BarChart2 className="w-4 h-4 text-[#661D27]" />
+            <div className="flex items-center gap-2.5 mb-5">
+              <div className="p-2.5 bg-[#661D27]/10 rounded-xl">
+                <BarChart2 className="w-5 h-5 text-[#661D27]" />
               </div>
               <div>
-                <h3 className="font-bold text-slate-800 text-sm leading-tight">งานที่ส่งแยกตามบทเรียน</h3>
-                <p className="text-[11px] text-slate-400 mt-0.5">Bar Chart</p>
+                <h3 className="font-bold text-slate-800 text-base leading-tight">งานที่ส่งแยกตามบทเรียน</h3>
+                <p className="text-xs text-slate-400 mt-0.5">Bar Chart</p>
               </div>
             </div>
             <div className="h-60">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={submissionsByLesson} margin={{ top: 4, right: 8, left: -24, bottom: 16 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
-                  <XAxis dataKey="name" tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
-                  <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
+                  <XAxis dataKey="name" tick={{ fontSize: 12, fill: "#64748b" }} axisLine={false} tickLine={false} />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: "#64748b" }} axisLine={false} tickLine={false} />
                   <Tooltip content={<CustomTooltip />} cursor={{ fill: "#f8f0f1" }} />
                   <Bar dataKey="count" radius={[8, 8, 0, 0]}>
                     {submissionsByLesson.map((_, i) => (
@@ -221,21 +221,21 @@ export default function AdminDashboardPage() {
 
           {/* Chart 2: Line — Daily Trend */}
           <motion.div {...card(0.15)} className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
-            <div className="flex items-center gap-2 mb-5">
-              <div className="p-2 bg-blue-50 rounded-xl">
-                <TrendingUp className="w-4 h-4 text-blue-500" />
+            <div className="flex items-center gap-2.5 mb-5">
+              <div className="p-2.5 bg-blue-50 rounded-xl">
+                <TrendingUp className="w-5 h-5 text-blue-500" />
               </div>
               <div>
-                <h3 className="font-bold text-slate-800 text-sm leading-tight">แนวโน้มการส่งงานรายวัน</h3>
-                <p className="text-[11px] text-slate-400 mt-0.5">Line Chart</p>
+                <h3 className="font-bold text-slate-800 text-base leading-tight">แนวโน้มการส่งงานรายวัน</h3>
+                <p className="text-xs text-slate-400 mt-0.5">Line Chart</p>
               </div>
             </div>
             <div className="h-60">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={dailyTrend} margin={{ top: 4, right: 8, left: -24, bottom: 16 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
-                  <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
-                  <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
+                  <XAxis dataKey="date" tick={{ fontSize: 12, fill: "#64748b" }} axisLine={false} tickLine={false} />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: "#64748b" }} axisLine={false} tickLine={false} />
                   <Tooltip content={<CustomTooltip />} cursor={{ stroke: "#e2e8f0" }} />
                   <defs>
                     <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
@@ -258,13 +258,13 @@ export default function AdminDashboardPage() {
 
           {/* Chart 3: Horizontal Bar — Top Stations */}
           <motion.div {...card(0.2)} className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
-            <div className="flex items-center gap-2 mb-5">
-              <div className="p-2 bg-amber-50 rounded-xl">
-                <Building className="w-4 h-4 text-amber-600" />
+            <div className="flex items-center gap-2.5 mb-5">
+              <div className="p-2.5 bg-amber-50 rounded-xl">
+                <Building className="w-5 h-5 text-amber-600" />
               </div>
               <div>
-                <h3 className="font-bold text-slate-800 text-sm leading-tight">Top 8 หน่วยงานที่ส่งงาน</h3>
-                <p className="text-[11px] text-slate-400 mt-0.5">Horizontal Bar</p>
+                <h3 className="font-bold text-slate-800 text-base leading-tight">Top 8 หน่วยงานที่ส่งงาน</h3>
+                <p className="text-xs text-slate-400 mt-0.5">Horizontal Bar</p>
               </div>
             </div>
             <div className="h-72">
@@ -275,8 +275,8 @@ export default function AdminDashboardPage() {
                   margin={{ top: 4, right: 16, left: 48, bottom: 4 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#F1F5F9" />
-                  <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
-                  <YAxis dataKey="name" type="category" tick={{ fontSize: 10, fill: "#64748b" }} width={110} axisLine={false} tickLine={false} />
+                  <XAxis type="number" allowDecimals={false} tick={{ fontSize: 12, fill: "#64748b" }} axisLine={false} tickLine={false} />
+                  <YAxis dataKey="name" type="category" tick={{ fontSize: 12, fill: "#475569" }} width={120} axisLine={false} tickLine={false} />
                   <Tooltip content={<CustomTooltip />} cursor={{ fill: "#f8f0f1" }} />
                   <Bar dataKey="count" fill="#8B2835" radius={[0, 8, 8, 0]} />
                 </BarChart>
@@ -286,13 +286,13 @@ export default function AdminDashboardPage() {
 
           {/* Chart 4: Donut + inline stat */}
           <motion.div {...card(0.25)} className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex flex-col">
-            <div className="flex items-center gap-2 mb-5">
-              <div className="p-2 bg-emerald-50 rounded-xl">
-                <ImageIcon className="w-4 h-4 text-emerald-600" />
+            <div className="flex items-center gap-2.5 mb-5">
+              <div className="p-2.5 bg-emerald-50 rounded-xl">
+                <ImageIcon className="w-5 h-5 text-emerald-600" />
               </div>
               <div>
-                <h3 className="font-bold text-slate-800 text-sm leading-tight">สัดส่วนภาพแนบในงานที่ส่ง</h3>
-                <p className="text-[11px] text-slate-400 mt-0.5">Donut Chart</p>
+                <h3 className="font-bold text-slate-800 text-base leading-tight">สัดส่วนภาพแนบในงานที่ส่ง</h3>
+                <p className="text-xs text-slate-400 mt-0.5">Donut Chart</p>
               </div>
             </div>
 
@@ -322,17 +322,17 @@ export default function AdminDashboardPage() {
               {/* Legend */}
               <div className="space-y-4 shrink-0">
                 <div className="text-center">
-                  <div className="text-3xl font-extrabold text-[#661D27]">{attachPct}%</div>
-                  <div className="text-[11px] text-slate-500 mt-0.5">แนบภาพแล้ว</div>
+                  <div className="text-4xl font-extrabold text-[#661D27]">{attachPct}%</div>
+                  <div className="text-xs text-slate-500 mt-1 whitespace-nowrap">แนบภาพแล้ว</div>
                 </div>
                 {attachmentData.map((d, i) => (
-                  <div key={i} className="flex items-center gap-2 text-xs">
+                  <div key={i} className="flex items-center gap-2 text-sm">
                     <span
-                      className="w-3 h-3 rounded-full shrink-0"
+                      className="w-3.5 h-3.5 rounded-full shrink-0"
                       style={{ background: PIE_COLORS[i] }}
                     />
-                    <span className="text-slate-600">{d.name}</span>
-                    <span className="font-bold text-slate-800 ml-auto pl-3">{d.value}</span>
+                    <span className="text-slate-700 whitespace-nowrap">{d.name}</span>
+                    <span className="font-bold text-slate-900 ml-auto pl-3">{d.value}</span>
                   </div>
                 ))}
               </div>

@@ -75,28 +75,28 @@ export default function CreatePostForm({ onPostCreated, className = "" }: Create
       {/* ── Widget Header ── */}
       <div className="flex items-center justify-between border-b border-slate-50 pb-3">
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-xl bg-[#661D27]/10 text-[#661D27] flex items-center justify-center">
-            <PenSquare className="w-4 h-4" />
+          <div className="w-8 h-8 rounded-xl bg-[#661D27]/10 text-[#661D27] flex items-center justify-center">
+            <PenSquare className="w-4.5 h-4.5" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-slate-900 leading-tight">สร้างโพสต์ใหม่</h3>
-            <p className="text-[11px] text-slate-400">แบ่งปันกับเพื่อนตำรวจ</p>
+            <h3 className="text-base font-bold text-slate-900 leading-tight">สร้างโพสต์ใหม่</h3>
+            <p className="text-xs text-slate-500">แบ่งปันกับเพื่อนตำรวจ</p>
           </div>
         </div>
-        <div className="flex items-center gap-1 text-[11px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full font-medium">
-          <Sparkles className="w-3 h-3" />
+        <div className="flex items-center gap-1.5 text-xs text-amber-800 bg-amber-50 px-2.5 py-1 rounded-full font-semibold">
+          <Sparkles className="w-3.5 h-3.5" />
           <span>AI Community</span>
         </div>
       </div>
 
       {/* ── User Profile Snapshot ── */}
-      <div className="flex items-center gap-2.5">
-        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#7a2130] to-[#4A141B] flex items-center justify-center text-white font-bold text-sm shadow-sm shrink-0">
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#7a2130] to-[#4A141B] flex items-center justify-center text-white font-bold text-base shadow-sm shrink-0">
           {authorInitial}
         </div>
         <div className="min-w-0">
-          <p className="text-xs font-bold text-slate-900 truncate">{displayName}</p>
-          <p className="text-[11px] text-slate-500 truncate">{user.unit}</p>
+          <p className="text-sm font-bold text-slate-900 truncate">{displayName}</p>
+          <p className="text-xs text-slate-500 truncate">{user.unit}</p>
         </div>
       </div>
 
@@ -107,10 +107,10 @@ export default function CreatePostForm({ onPostCreated, className = "" }: Create
           onChange={(e) => setContent(e.target.value)}
           placeholder={`วันนี้คุณมีเทคนิค AI อะไรอยากบอกเพื่อนตำรวจบ้าง?...`}
           rows={3}
-          className="w-full resize-none text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 
-                     bg-slate-50/80 rounded-2xl p-3 border border-slate-200/80
+          className="w-full resize-none text-base text-slate-800 placeholder:text-slate-400 
+                     bg-slate-50/80 rounded-2xl p-3.5 border border-slate-200/80
                      focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#661D27]/20 focus:border-[#661D27]/40
-                     transition-all"
+                     transition-all leading-relaxed"
         />
       </div>
 
@@ -136,9 +136,9 @@ export default function CreatePostForm({ onPostCreated, className = "" }: Create
                          rounded-full p-1.5 shadow-md transition-all"
               title="ลบรูปภาพ"
             >
-              <X className="w-3.5 h-3.5" />
+              <X className="w-4 h-4" />
             </button>
-            <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm text-white text-[10px] px-2 py-0.5 rounded-md">
+            <div className="absolute bottom-2 left-2 bg-black/70 backdrop-blur-sm text-white text-xs px-2.5 py-1 rounded-md">
               แนบแล้ว
             </div>
           </motion.div>
@@ -147,7 +147,7 @@ export default function CreatePostForm({ onPostCreated, className = "" }: Create
 
       {/* ── Error Banner ── */}
       {error && (
-        <p className="text-red-500 text-xs font-medium px-1 bg-red-50 py-1 rounded-lg">
+        <p className="text-red-600 text-sm font-medium px-3 bg-red-50 py-2 rounded-xl">
           {error}
         </p>
       )}
@@ -158,10 +158,10 @@ export default function CreatePostForm({ onPostCreated, className = "" }: Create
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-medium
-                     text-slate-600 hover:text-[#661D27] hover:bg-slate-100/80 transition-all cursor-pointer"
+          className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold
+                     text-slate-700 hover:text-[#661D27] hover:bg-slate-100 transition-all cursor-pointer whitespace-nowrap"
         >
-          <ImageIcon className="w-4 h-4 text-emerald-600" />
+          <ImageIcon className="w-4.5 h-4.5 text-emerald-600 shrink-0" />
           <span>{imageFile ? "เปลี่ยนรูป" : "แนบภาพ"}</span>
         </button>
         <input
@@ -177,18 +177,18 @@ export default function CreatePostForm({ onPostCreated, className = "" }: Create
           type="button"
           onClick={() => handleSubmit()}
           disabled={loading || (!content.trim() && !imageFile)}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold
                      bg-gradient-to-r from-[#7a2130] to-[#661D27] text-white hover:from-[#661D27] hover:to-[#4A141B] 
-                     disabled:opacity-40 disabled:cursor-not-allowed shadow-sm hover:shadow transition-all cursor-pointer"
+                     disabled:opacity-40 disabled:cursor-not-allowed shadow-sm hover:shadow transition-all cursor-pointer whitespace-nowrap"
         >
           {loading ? (
             <>
-              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              <Loader2 className="w-4 h-4 animate-spin" />
               <span>กำลังโพสต์...</span>
             </>
           ) : (
             <>
-              <Send className="w-3.5 h-3.5" />
+              <Send className="w-4 h-4" />
               <span>โพสต์</span>
             </>
           )}

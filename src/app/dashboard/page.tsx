@@ -137,14 +137,14 @@ export default function OfficerDashboardPage() {
 
           <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
             <div className="space-y-2">
-              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold text-amber-300 border border-white/10">
-                <Sparkles className="w-3.5 h-3.5" />
+              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-full text-sm font-semibold text-amber-300 border border-white/10">
+                <Sparkles className="w-4 h-4" />
                 ยินดีต้อนรับสู่ระบบฝึกอบรม AI POLICE
               </div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+              <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
                 สวัสดี {user.rank ? `${user.rank} ` : ""}{user.full_name}
               </h1>
-              <p className="text-sm text-white/80 flex items-center gap-2">
+              <p className="text-base text-white/80 flex items-center gap-2">
                 <Shield className="w-4 h-4 text-amber-400 shrink-0" />
                 สังกัด: <span className="font-semibold text-white">{user.unit}</span>
               </p>
@@ -153,23 +153,23 @@ export default function OfficerDashboardPage() {
             {/* Quick Stat Pill */}
             <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/15 shrink-0 self-start sm:self-auto">
               <div className="p-2.5 bg-amber-400/20 rounded-xl">
-                <CheckCircle2 className="w-5 h-5 text-amber-300" />
+                <CheckCircle2 className="w-6 h-6 text-amber-300" />
               </div>
               <div>
-                <div className="text-2xl font-extrabold text-white tabular-nums">
+                <div className="text-3xl font-extrabold text-white tabular-nums">
                   {mySubmissions.length}
                 </div>
-                <div className="text-[11px] text-white/70">งานที่ส่งแล้ว</div>
+                <div className="text-sm text-white/70 whitespace-nowrap">งานที่ส่งแล้ว</div>
               </div>
 
               {urgentCount > 0 && (
                 <div className="flex items-center gap-3 pl-3 border-l border-white/20">
                   <div className="p-2.5 bg-red-500 rounded-xl">
-                    <Bell className="w-5 h-5 text-white" />
+                    <Bell className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <div className="text-2xl font-extrabold text-red-300 tabular-nums">{urgentCount}</div>
-                    <div className="text-[11px] text-red-200">ประกาศด่วน</div>
+                    <div className="text-3xl font-extrabold text-red-300 tabular-nums">{urgentCount}</div>
+                    <div className="text-sm text-red-200 whitespace-nowrap">ประกาศด่วน</div>
                   </div>
                 </div>
               )}
@@ -181,15 +181,15 @@ export default function OfficerDashboardPage() {
         {latestNews.length > 0 && (
           <section className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <Bell className="w-4 h-4 text-[#661D27]" />
+              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                <Bell className="w-5 h-5 text-[#661D27]" />
                 ประกาศ / ข่าวสารและวิดีโอล่าสุด
               </h2>
               <Link
                 href="/news"
-                className="text-xs font-semibold text-[#661D27] hover:underline underline-offset-2 flex items-center gap-1"
+                className="text-sm font-semibold text-[#661D27] hover:underline underline-offset-2 flex items-center gap-1 whitespace-nowrap"
               >
-                ดูทั้งหมด <ArrowRight className="w-3 h-3" />
+                ดูทั้งหมด <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
 
@@ -207,7 +207,7 @@ export default function OfficerDashboardPage() {
 
         {/* ── Main Menu Cards ── */}
         <section className="space-y-4">
-          <h2 className="text-base font-bold text-slate-900">เมนูหลักสำหรับผู้เข้าอบรม</h2>
+          <h2 className="text-lg font-bold text-slate-900">เมนูหลักสำหรับผู้เข้าอบรม</h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {MENU_ITEMS.map((item, i) => (
@@ -227,16 +227,16 @@ export default function OfficerDashboardPage() {
 
                     {/* Text */}
                     <div className="flex-1">
-                      <h3 className="font-bold text-slate-900 text-base mb-1 group-hover:text-[#661D27] transition-colors">
+                      <h3 className="font-bold text-slate-900 text-lg mb-1.5 group-hover:text-[#661D27] transition-colors">
                         {item.label}
                       </h3>
-                      <p className="text-xs text-slate-500 leading-relaxed">{item.desc}</p>
+                      <p className="text-sm text-slate-500 leading-relaxed">{item.desc}</p>
                     </div>
 
                     {/* CTA */}
-                    <div className={`text-xs font-semibold flex items-center gap-1 ${item.ctaColor}`}>
+                    <div className={`text-sm font-semibold flex items-center gap-1.5 ${item.ctaColor} whitespace-nowrap`}>
                       {item.cta}
-                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </div>
                   </div>
                 </Link>

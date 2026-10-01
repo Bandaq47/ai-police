@@ -27,15 +27,15 @@ export default function LessonsPage() {
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* Header */}
-        <div className="space-y-1">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#661D27]/10 text-[#661D27] rounded-full text-xs font-semibold">
-            <BookOpen className="w-3.5 h-3.5" />
+        <div className="space-y-2">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#661D27]/10 text-[#661D27] rounded-full text-sm font-semibold">
+            <BookOpen className="w-4 h-4" />
             หัวข้อบทเรียนอบรม
           </div>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
             บทเรียนการฝึกเขียนพรอมต์ (AI Lessons)
           </h1>
-          <p className="text-xs text-slate-500">
+          <p className="text-sm text-slate-600 leading-relaxed">
             วิทยากรกำหนดหัวข้อบทเรียนสำหรับฝึกปฏิบัติ ข้าราชการตำรวจสามารถเลือกหัวข้อเหล่านี้ในหน้าส่งงาน
           </p>
         </div>
@@ -52,25 +52,25 @@ export default function LessonsPage() {
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="w-9 h-9 rounded-2xl bg-[#661D27]/10 text-[#661D27] font-bold text-sm flex items-center justify-center">
+                  <span className="w-10 h-10 rounded-2xl bg-[#661D27]/10 text-[#661D27] font-bold text-base flex items-center justify-center">
                     {idx + 1}
                   </span>
-                  <Sparkles className="w-5 h-5 text-amber-500" />
+                  <Sparkles className="w-6 h-6 text-amber-500" />
                 </div>
-                <h3 className="font-bold text-slate-900 text-base leading-snug">{lesson.title}</h3>
-                <p className="text-xs text-slate-600 leading-relaxed">{lesson.description}</p>
+                <h3 className="font-bold text-slate-900 text-lg leading-snug">{lesson.title}</h3>
+                <p className="text-sm text-slate-600 leading-relaxed">{lesson.description}</p>
               </div>
 
               <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                <span className="text-[11px] text-slate-400 flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                <span className="text-sm text-slate-400 flex items-center gap-1.5 whitespace-nowrap">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                   เปิดรับการส่งงาน
                 </span>
                 <Link
                   href={`/submit?lesson=${lesson.id}`}
-                  className="px-3.5 py-1.5 bg-[#661D27] text-white rounded-xl text-xs font-semibold hover:bg-[#4A141B] transition-colors flex items-center gap-1.5 shadow-sm"
+                  className="px-4 py-2 bg-[#661D27] text-white rounded-xl text-sm font-semibold hover:bg-[#4A141B] transition-colors flex items-center gap-2 shadow-sm whitespace-nowrap"
                 >
-                  <Send className="w-3 h-3" />
+                  <Send className="w-4 h-4" />
                   ฝึกเขียนบทเรียนนี้
                 </Link>
               </div>

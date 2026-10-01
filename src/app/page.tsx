@@ -1,16 +1,20 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import SplashScreen from "@/components/SplashScreen";
 
 export default function Home() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const router = useRouter();
 
-  useEffect(() => {
+  const handleRedirect = useCallback(() => {
+    if (loading) return;
     if (user) {
-      if (user.role === "admin") {
+      if (!user.is_onboarded) {
+        router.push("/onboarding");
+      } else if (user.role === "admin") {
         router.push("/admin/dashboard");
       } else {
         router.push("/dashboard");
@@ -18,14 +22,16 @@ export default function Home() {
     } else {
       router.push("/login");
     }
-  }, [user, router]);
+  }, [user, loading, router]);
 
-  return (
-    <div className="min-h-screen flex items-center justify-center oxblood-gradient text-white">
-      <div className="text-center space-y-4">
-        <h1 className="text-2xl font-bold">กำลังนำท่านเข้าสู่ระบบ AI POLICE...</h1>
-        <p className="text-sm text-white/70">ตำรวจภูธรจังหวัดสุราษฎร์ธานี</p>
-      </div>
-    </div>
-  );
+  useEffect(() => {
+    if (!loading) {
+      const timer = setTimeout(() => {
+        handleRedirect();
+      }, 1850);
+      return () => clearTimeout(timer);
+    }
+  }, [loading, handleRedirect]);
+
+  return <SplashScreen onComplete={handleRedirect} />;
 }

@@ -137,11 +137,11 @@ function SubmitFormContent() {
       className="max-w-3xl w-full mx-auto bg-white rounded-3xl p-6 sm:p-10 border border-slate-200 shadow-sm space-y-6"
     >
       <div className="border-b border-slate-100 pb-4">
-        <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
-          <Send className="w-6 h-6 text-[#661D27]" />
+        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2.5">
+          <Send className="w-7 h-7 text-[#661D27]" />
           แบบฟอร์มส่งงานฝึกเขียนพรอมต์
         </h1>
-        <p className="text-xs text-slate-500 mt-1">
+        <p className="text-sm text-slate-600 mt-1.5 leading-relaxed">
           กรอกข้อมูลพรอมต์และแนบภาพผลลัพธ์ (ถ้ามี) ระบบจะบันทึกงานเพื่อส่งให้วิทยากรตรวจสอบ
         </p>
       </div>
@@ -156,8 +156,8 @@ function SubmitFormContent() {
             <div className="w-14 h-14 bg-emerald-600 text-white rounded-full flex items-center justify-center mx-auto shadow-md animate-bounce">
               <CheckCircle className="w-8 h-8" />
             </div>
-            <h3 className="font-bold text-emerald-900 text-lg">ส่งงานสำเร็จเรียบร้อย!</h3>
-            <p className="text-xs text-emerald-700">กำลังนำท่านไปยังหน้าประวัติการส่งงาน...</p>
+            <h3 className="font-bold text-emerald-900 text-xl">ส่งงานสำเร็จเรียบร้อย!</h3>
+            <p className="text-sm text-emerald-700">กำลังนำท่านไปยังหน้าประวัติการส่งงาน...</p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -165,23 +165,24 @@ function SubmitFormContent() {
       {!success && (
         <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs font-semibold flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+            <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm font-semibold flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 shrink-0 text-red-600" />
               {error}
             </div>
           )}
 
           {/* 1. Mandatory Lesson Dropdown */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-amber-500" />
-              หัวข้อบทเรียน <span className="text-red-500">* (เลือกจากรายการที่กำหนดเท่านั้น)</span>
+            <label className="text-sm font-semibold text-slate-800 flex items-center gap-2">
+              <Sparkles className="w-4.5 h-4.5 text-amber-500" />
+              <span>หัวข้อบทเรียน</span>
+              <span className="text-red-500 font-normal text-xs whitespace-nowrap">* (เลือกจากรายการที่กำหนดเท่านั้น)</span>
             </label>
             <select
               required
               value={lessonId}
               onChange={(e) => setLessonId(e.target.value)}
-              className="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#661D27] focus:bg-white transition-all font-semibold text-slate-800"
+              className="w-full px-4 py-3.5 text-base bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#661D27] focus:bg-white transition-all font-semibold text-slate-800"
             >
               {lessons.map((lesson) => (
                 <option key={lesson.id} value={lesson.id}>
@@ -193,9 +194,10 @@ function SubmitFormContent() {
 
           {/* 2. Prompt Textarea */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
-              <FileText className="w-4 h-4 text-[#661D27]" />
-              พรอมต์ที่ฝึกเขียน (Prompt Text) <span className="text-red-500">*</span>
+            <label className="text-sm font-semibold text-slate-800 flex items-center gap-2">
+              <FileText className="w-4.5 h-4.5 text-[#661D27]" />
+              <span>พรอมต์ที่ฝึกเขียน (Prompt Text)</span>
+              <span className="text-red-500">*</span>
             </label>
             <textarea
               required
@@ -203,42 +205,42 @@ function SubmitFormContent() {
               value={promptText}
               onChange={(e) => setPromptText(e.target.value)}
               placeholder="กรอกพรอมต์ภาษาไทย หรือ ภาษาอังกฤษ ที่ท่านใช้สั่งการ AI..."
-              className="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#661D27] focus:bg-white transition-all leading-relaxed"
+              className="w-full px-4 py-3.5 text-base bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#661D27] focus:bg-white transition-all leading-relaxed"
             />
           </div>
 
           {/* 3. Optional Notes Textarea */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-700 flex items-center justify-between">
+            <label className="text-sm font-semibold text-slate-700 flex items-center justify-between">
               <span>บันทึกเพิ่มเติม (Notes)</span>
-              <span className="text-slate-400 font-normal text-[11px]">(ไม่บังคับ)</span>
+              <span className="text-slate-500 font-normal text-xs whitespace-nowrap">(ไม่บังคับ)</span>
             </label>
             <textarea
               rows={2}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="ระบุเครื่องมือ AI ที่ใช้ (เช่น Midjourney v6, ChatGPT, Gamma) หรือหมายเหตุเพิ่มเติม..."
-              className="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#661D27] focus:bg-white transition-all"
+              className="w-full px-4 py-3.5 text-base bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#661D27] focus:bg-white transition-all"
             />
           </div>
 
           {/* 4. Optional Image Upload with Auto-Resize preview */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-700 flex items-center justify-between">
-              <span className="flex items-center gap-1.5">
-                <ImageIcon className="w-4 h-4 text-[#661D27]" />
+            <label className="text-sm font-semibold text-slate-700 flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <ImageIcon className="w-4.5 h-4.5 text-[#661D27]" />
                 แนบภาพผลลัพธ์จาก AI หรือสื่อประกอบ
               </span>
-              <span className="text-slate-400 font-normal text-[11px]">(ระบบย่อขนาดอัตโนมัติ)</span>
+              <span className="text-slate-500 font-normal text-xs whitespace-nowrap">(ระบบย่อขนาดอัตโนมัติ)</span>
             </label>
 
             {!imagePreview ? (
               <label className="border-2 border-dashed border-slate-200 hover:border-[#661D27] rounded-2xl p-6 flex flex-col items-center justify-center cursor-pointer transition-colors bg-slate-50 hover:bg-red-50/20 group">
-                <Upload className="w-8 h-8 text-slate-400 group-hover:text-[#661D27] transition-colors mb-2" />
-                <span className="text-xs font-semibold text-slate-700 group-hover:text-[#661D27]">
+                <Upload className="w-9 h-9 text-slate-400 group-hover:text-[#661D27] transition-colors mb-2" />
+                <span className="text-sm font-semibold text-slate-700 group-hover:text-[#661D27]">
                   คลิกเพื่อเลือกไฟล์ภาพ หรือ ลากไฟล์มาวางที่นี่
                 </span>
-                <span className="text-[11px] text-slate-400 mt-1">รองรับ JPG, PNG, WEBP</span>
+                <span className="text-xs text-slate-500 mt-1 whitespace-nowrap">รองรับ JPG, PNG, WEBP</span>
                 <input
                   type="file"
                   accept="image/*"
@@ -269,14 +271,14 @@ function SubmitFormContent() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-4 oxblood-gradient text-white rounded-2xl font-bold text-base shadow-md hover:shadow-xl transition-all flex items-center justify-center gap-2 group disabled:opacity-50"
+            className="w-full py-4 oxblood-gradient text-white rounded-2xl font-bold text-lg shadow-md hover:shadow-xl transition-all flex items-center justify-center gap-2.5 group disabled:opacity-50 cursor-pointer"
           >
             {loading ? (
-              <span>กำลังบันทึกส่งงาน...</span>
+              <span className="whitespace-nowrap">กำลังบันทึกส่งงาน...</span>
             ) : (
               <>
                 <Send className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                <span>ยืนยันส่งงานเข้าระบบ</span>
+                <span className="whitespace-nowrap">ยืนยันส่งงานเข้าระบบ</span>
               </>
             )}
           </button>

@@ -31,32 +31,32 @@ export default function StatCard({
       className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex items-start justify-between oxblood-card-hover stat-shimmer group cursor-default"
     >
       <div className="flex-1 min-w-0">
-        <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-400 mb-2">
+        <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-2">
           {title}
         </p>
-        <h3 className="text-3xl font-extrabold text-slate-900 leading-none tabular-nums">
+        <h3 className="text-4xl font-extrabold text-slate-900 leading-none tabular-nums">
           {value}
         </h3>
         {subtitle && (
-          <p className="text-xs text-slate-500 mt-1.5 leading-snug">{subtitle}</p>
+          <p className="text-sm text-slate-500 mt-2 leading-snug">{subtitle}</p>
         )}
         {trend !== undefined && (
           <p
-            className={`text-[11px] font-semibold mt-2 flex items-center gap-1 ${
+            className={`text-sm font-semibold mt-2 flex items-center gap-1 ${
               trend >= 0 ? "text-emerald-600" : "text-red-500"
             }`}
           >
             <span>{trend >= 0 ? "▲" : "▼"}</span>
-            <span>{Math.abs(trend)}% จากเมื่อวาน</span>
+            <span className="whitespace-nowrap">{Math.abs(trend)}% จากเมื่อวาน</span>
           </p>
         )}
       </div>
 
       <div
-        className={`p-3.5 rounded-xl ${colorBg} ${colorText} shrink-0 ml-4
+        className={`p-4 rounded-xl ${colorBg} ${colorText} shrink-0 ml-4
                     group-hover:scale-110 transition-transform duration-200`}
       >
-        <Icon className="w-6 h-6" />
+        <Icon className="w-7 h-7" />
       </div>
     </motion.div>
   );

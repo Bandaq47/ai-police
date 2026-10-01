@@ -216,18 +216,18 @@ export default function PostCard({ post, onImageClick }: PostCardProps) {
           {/* User metadata */}
           <div className="min-w-0">
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-sm font-bold text-slate-900 truncate tracking-tight">
+              <span className="text-base font-bold text-slate-900 truncate tracking-tight">
                 {authorName}
               </span>
               <span title="ข้าราชการตำรวจ">
-                <ShieldCheck className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                <ShieldCheck className="w-4 h-4 text-blue-500 shrink-0" />
               </span>
               <span className="text-xs text-slate-400 font-normal">•</span>
-              <span className="text-xs text-slate-500 font-medium">
+              <span className="text-xs text-slate-500 font-medium whitespace-nowrap">
                 {formatIgTime(post.created_at)}
               </span>
             </div>
-            <p className="text-[11px] text-slate-500 font-medium truncate">
+            <p className="text-xs text-slate-600 font-medium truncate">
               {post.profiles?.unit || "ตำรวจภูธรจังหวัดสุราษฎร์ธานี"}
             </p>
           </div>
@@ -332,7 +332,7 @@ export default function PostCard({ post, onImageClick }: PostCardProps) {
               />
             </motion.div>
             {(post.like_count || 0) > 0 && (
-              <span className={`text-xs font-semibold ${post.is_liked ? "text-red-500" : "text-slate-700"}`}>
+              <span className={`text-sm font-semibold whitespace-nowrap ${post.is_liked ? "text-red-500" : "text-slate-700"}`}>
                 {post.like_count}
               </span>
             )}
@@ -346,7 +346,7 @@ export default function PostCard({ post, onImageClick }: PostCardProps) {
           >
             <MessageCircle className="w-6 h-6 text-slate-700 group-hover:text-blue-500 group-hover:scale-110 transition-transform" />
             {comments.length > 0 && (
-              <span className="text-xs font-semibold text-slate-700">
+              <span className="text-sm font-semibold text-slate-700 whitespace-nowrap">
                 {comments.length}
               </span>
             )}
@@ -365,7 +365,7 @@ export default function PostCard({ post, onImageClick }: PostCardProps) {
               <Share2 className="w-5.5 h-5.5 group-hover:scale-110 transition-transform" />
             )}
             {copied && (
-              <span className="absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-0.5 rounded-md whitespace-nowrap shadow-md">
+              <span className="absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs px-2.5 py-0.5 rounded-md whitespace-nowrap shadow-md">
                 คัดลอกลิงก์แล้ว
               </span>
             )}
@@ -388,8 +388,8 @@ export default function PostCard({ post, onImageClick }: PostCardProps) {
 
       {/* ── 4. Liked By Section (Instagram Style) ── */}
       {(post.like_count || 0) > 0 && (
-        <div className="px-4 py-0.5 text-xs text-slate-700">
-          <div className="flex items-center gap-1.5">
+        <div className="px-4 py-1 text-sm text-slate-700">
+          <div className="flex items-center gap-1.5 flex-wrap">
             <div className="w-4 h-4 rounded-full bg-red-500 flex items-center justify-center shrink-0">
               <Heart className="w-2.5 h-2.5 text-white fill-white" />
             </div>
@@ -400,13 +400,13 @@ export default function PostCard({ post, onImageClick }: PostCardProps) {
 
       {/* ── 5. Caption / Content (Instagram Style) ── */}
       {post.content && (
-        <div className="px-4 pt-1.5 pb-2 text-sm text-slate-800 leading-relaxed">
+        <div className="px-4 pt-1.5 pb-2 text-base text-slate-800 leading-relaxed">
           {isEditing ? (
             <div className="space-y-2">
               <textarea
                 value={editContent}
                 onChange={(e) => setEditContent(e.target.value)}
-                className="w-full border border-blue-200 rounded-xl p-3 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-400/50 resize-none bg-blue-50/30"
+                className="w-full border border-blue-200 rounded-xl p-3 text-base text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-400/50 resize-none bg-blue-50/30"
                 rows={4}
                 autoFocus
               />
@@ -438,7 +438,7 @@ export default function PostCard({ post, onImageClick }: PostCardProps) {
               {isLongText && (
                 <button
                   onClick={() => setIsTextExpanded(!isTextExpanded)}
-                  className="ml-1 text-slate-400 hover:text-slate-600 text-xs font-medium cursor-pointer"
+                  className="ml-1 text-slate-500 hover:text-slate-700 text-sm font-semibold cursor-pointer underline underline-offset-2"
                 >
                   {isTextExpanded ? "ซ่อน" : "ดูเพิ่มเติม"}
                 </button>
@@ -454,7 +454,7 @@ export default function PostCard({ post, onImageClick }: PostCardProps) {
         {comments.length > 2 && (
           <button
             onClick={() => setShowAllComments(!showAllComments)}
-            className="text-xs font-medium text-slate-400 hover:text-slate-600 transition-colors pt-0.5 block"
+            className="text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors pt-0.5 block cursor-pointer"
           >
             {showAllComments
               ? "ซ่อนความคิดเห็นบางส่วน"
@@ -464,22 +464,22 @@ export default function PostCard({ post, onImageClick }: PostCardProps) {
 
         {/* Visible comments list */}
         {visibleComments.length > 0 && (
-          <div className="space-y-1.5 pt-0.5">
+          <div className="space-y-2 pt-0.5">
             {visibleComments.map((c) => {
               const commenterName = `${c.profiles?.rank ? c.profiles.rank + " " : ""}${c.profiles?.full_name || "เพื่อนตำรวจ"}`;
               const commenterInitial = c.profiles?.full_name?.charAt(0) || "ต";
               const canDeleteComment = user?.id === c.user_id || user?.role === "admin";
 
               return (
-                <div key={c.id} className="flex items-start justify-between gap-2 group text-xs">
-                  <div className="flex items-start gap-2 min-w-0">
-                    <div className="w-5 h-5 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-[9px] shrink-0 mt-0.5">
+                <div key={c.id} className="flex items-start justify-between gap-2 group text-sm">
+                  <div className="flex items-start gap-2.5 min-w-0">
+                    <div className="w-6 h-6 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
                       {commenterInitial}
                     </div>
                     <div className="leading-snug">
                       <span className="font-bold text-slate-900 mr-1.5">{commenterName}</span>
-                      <span className="text-slate-700 whitespace-pre-wrap">{c.content}</span>
-                      <span className="text-[10px] text-slate-400 ml-2">
+                      <span className="text-slate-800 whitespace-pre-wrap">{c.content}</span>
+                      <span className="text-xs text-slate-400 ml-2 whitespace-nowrap">
                         {formatIgTime(c.created_at)}
                       </span>
                     </div>
@@ -488,10 +488,10 @@ export default function PostCard({ post, onImageClick }: PostCardProps) {
                   {canDeleteComment && (
                     <button
                       onClick={() => deleteComment(c.id)}
-                      className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition-opacity p-0.5 shrink-0"
+                      className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition-opacity p-1 shrink-0"
                       title="ลบคอมเมนต์"
                     >
-                      <Trash2 className="w-3 h-3" />
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   )}
                 </div>
@@ -504,9 +504,9 @@ export default function PostCard({ post, onImageClick }: PostCardProps) {
       {/* ── 7. Instant Comment Input (Instagram Style Fixed at Bottom) ── */}
       <form
         onSubmit={handleComment}
-        className="flex items-center gap-2.5 px-4 py-2.5 border-t border-slate-100 bg-slate-50/50"
+        className="flex items-center gap-3 px-4 py-3 border-t border-slate-100 bg-slate-50/50"
       >
-        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#7a2130] to-[#4A141B] flex items-center justify-center text-white font-bold text-[10px] shrink-0">
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#7a2130] to-[#4A141B] flex items-center justify-center text-white font-bold text-xs shrink-0">
           {user?.full_name?.charAt(0) || "ต"}
         </div>
         <input
@@ -515,19 +515,19 @@ export default function PostCard({ post, onImageClick }: PostCardProps) {
           value={commentText}
           onChange={(e) => setCommentText(e.target.value)}
           placeholder={`แสดงความคิดเห็นในชื่อ ${user?.full_name || ""}...`}
-          className="flex-1 bg-transparent text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none"
+          className="flex-1 bg-transparent text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none"
         />
         <button
           type="submit"
           disabled={!commentText.trim() || submittingComment}
-          className="text-xs font-bold text-[#661D27] hover:text-[#4A141B] disabled:opacity-30 disabled:cursor-not-allowed transition-opacity px-1 py-0.5 flex items-center gap-1"
+          className="text-sm font-bold text-[#661D27] hover:text-[#4A141B] disabled:opacity-30 disabled:cursor-not-allowed transition-opacity px-2 py-1 flex items-center gap-1.5 whitespace-nowrap"
         >
           {submittingComment ? (
-            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            <Loader2 className="w-4 h-4 animate-spin" />
           ) : (
             <>
               โพสต์
-              <Send className="w-3 h-3 ml-0.5" />
+              <Send className="w-3.5 h-3.5 ml-0.5" />
             </>
           )}
         </button>

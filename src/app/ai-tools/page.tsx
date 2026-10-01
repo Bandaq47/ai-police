@@ -74,27 +74,27 @@ export default function AIToolsPage() {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Header */}
         <div className="flex flex-col items-center text-center space-y-4 mb-8">
-          <div className="inline-flex items-center gap-2 bg-[#661D27]/10 px-4 py-2 rounded-full text-sm font-semibold text-[#661D27]">
-            <Sparkles className="w-4 h-4" />
+          <div className="inline-flex items-center gap-2 bg-[#661D27]/10 px-4.5 py-2 rounded-full text-base font-semibold text-[#661D27]">
+            <Sparkles className="w-4.5 h-4.5" />
             Module เครื่องมือ AI
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
             รวมเครื่องมือ AI สำหรับงานตำรวจ
           </h1>
-          <p className="text-slate-500 max-w-2xl">
+          <p className="text-base text-slate-600 max-w-2xl leading-relaxed">
             เลือกใช้งาน AI Assistants ที่เหมาะสมกับงานของคุณ เพื่อเพิ่มประสิทธิภาพและลดเวลาในการทำงาน
           </p>
         </div>
 
         {/* Categories / Filters */}
-        <div className="flex flex-wrap justify-center gap-2 mb-8">
+        <div className="flex flex-wrap justify-center gap-2.5 mb-8">
           {CATEGORIES.map((cat) => {
             const isActive = activeCategory === cat.id;
             return (
               <button
                 key={cat.id}
                 onClick={() => setActiveCategory(cat.id)}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 shadow-sm
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-base font-semibold transition-all duration-200 shadow-sm cursor-pointer whitespace-nowrap
                   ${
                     isActive
                       ? "bg-[#661D27] text-white shadow-md scale-105"
@@ -102,7 +102,7 @@ export default function AIToolsPage() {
                   }
                 `}
               >
-                <cat.icon className="w-4 h-4" />
+                <cat.icon className="w-4.5 h-4.5" />
                 {cat.label}
               </button>
             );
@@ -117,7 +117,7 @@ export default function AIToolsPage() {
         ) : filteredTools.length === 0 ? (
           <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-slate-300">
             <Bot className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-            <p className="text-slate-500">ยังไม่มีเครื่องมือในหมวดหมู่นี้</p>
+            <p className="text-base text-slate-500">ยังไม่มีเครื่องมือในหมวดหมู่นี้</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
@@ -131,7 +131,7 @@ export default function AIToolsPage() {
               >
                 {/* Top Half: Logo / Header */}
                 <div className="p-6 pb-4 flex flex-col items-center text-center border-b border-slate-50 bg-slate-50/50 relative min-h-[9rem]">
-                  <div className="absolute top-4 right-4 bg-white/80 backdrop-blur text-xs font-semibold px-2.5 py-1 rounded-md text-slate-500 shadow-sm">
+                  <div className="absolute top-4 right-4 bg-white/80 backdrop-blur text-xs font-semibold px-3 py-1 rounded-md text-slate-600 shadow-sm whitespace-nowrap">
                     {tool.category}
                   </div>
 
@@ -150,29 +150,29 @@ export default function AIToolsPage() {
                       <Bot className="w-8 h-8 text-slate-300" />
                     )}
                   </div>
-                  <h3 className="text-base font-bold text-slate-900 group-hover:text-[#661D27] transition-colors leading-tight line-clamp-2">
+                  <h3 className="text-lg font-bold text-slate-900 group-hover:text-[#661D27] transition-colors leading-tight line-clamp-2">
                     {tool.name}
                   </h3>
                 </div>
 
                 {/* Bottom Half: Details */}
-                <div className="p-5 flex flex-col flex-1 gap-3">
-                  {/* รายละเอียด — fixed 2-line height */}
+                <div className="p-5 flex flex-col flex-1 gap-3.5">
+                  {/* รายละเอียด */}
                   <div>
-                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                    <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
                       รายละเอียด
                     </div>
-                    <p className="text-sm text-slate-600 leading-snug min-h-[2.5rem] max-h-[3.5rem] scroll-thin pr-1">
+                    <p className="text-sm text-slate-700 leading-relaxed min-h-[2.5rem] max-h-[4rem] scroll-thin pr-1">
                       {tool.description}
                     </p>
                   </div>
 
-                  {/* ช่วยงาน — fills remaining space, clamp 4 lines */}
+                  {/* ช่วยงาน */}
                   <div className="flex-1">
-                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                    <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
                       ช่วยงานอะไรได้บ้าง
                     </div>
-                    <div className="text-sm text-slate-700 bg-amber-50/50 p-3 rounded-xl border border-amber-100/50 min-h-[5rem] max-h-[7rem] scroll-thin-amber leading-relaxed">
+                    <div className="text-sm text-slate-800 bg-amber-50/60 p-3.5 rounded-xl border border-amber-200/50 min-h-[5rem] max-h-[7rem] scroll-thin-amber leading-relaxed">
                       {tool.how_it_helps}
                     </div>
                   </div>
@@ -182,10 +182,10 @@ export default function AIToolsPage() {
                     href={tool.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-auto w-full py-2.5 bg-slate-900 hover:bg-[#661D27] text-white rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2 group/btn"
+                    className="mt-auto w-full py-3 bg-slate-900 hover:bg-[#661D27] text-white rounded-xl text-base font-semibold transition-colors flex items-center justify-center gap-2 group/btn whitespace-nowrap shadow-sm"
                   >
-                    เข้าสู่เว็บไซต์
-                    <ExternalLink className="w-4 h-4 group-hover/btn:translate-x-0.5 transition-transform" />
+                    <span>เข้าสู่เว็บไซต์</span>
+                    <ExternalLink className="w-4.5 h-4.5 group-hover/btn:translate-x-0.5 transition-transform" />
                   </a>
                 </div>
               </motion.div>

@@ -49,17 +49,17 @@ export default function CommunityPage() {
         {/* ── Page Header ── */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#7a2130] to-[#4A141B] flex items-center justify-center shadow-md text-white">
-              <Users className="w-5 h-5" />
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#7a2130] to-[#4A141B] flex items-center justify-center shadow-md text-white shrink-0">
+              <Users className="w-6 h-6" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl font-black text-slate-900 tracking-tight">ชุมชนตำรวจ AI</h1>
-                <span className="text-xs bg-[#661D27]/10 text-[#661D27] font-bold px-2 py-0.5 rounded-full">
+                <h1 className="text-2xl font-black text-slate-900 tracking-tight">ชุมชนตำรวจ AI</h1>
+                <span className="text-sm bg-[#661D27]/10 text-[#661D27] font-bold px-3 py-0.5 rounded-full whitespace-nowrap">
                   {posts.length} โพสต์
                 </span>
               </div>
-              <p className="text-xs text-slate-500 font-medium">
+              <p className="text-sm text-slate-600 font-medium">
                 พื้นที่แลกเปลี่ยนผลงาน พรอมต์ และประสบการณ์การใช้งาน AI สุราษฎร์ธานี
               </p>
             </div>
@@ -67,11 +67,11 @@ export default function CommunityPage() {
 
           <button
             onClick={handleRefresh}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold
                        bg-white text-slate-700 hover:text-[#661D27] border border-slate-200/80
-                       hover:border-[#661D27]/30 shadow-sm transition-all cursor-pointer"
+                       hover:border-[#661D27]/30 shadow-sm transition-all cursor-pointer whitespace-nowrap"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin text-[#661D27]" : ""}`} />
+            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-[#661D27]" : ""}`} />
             <span>รีเฟรช</span>
           </button>
         </div>
@@ -90,12 +90,12 @@ export default function CommunityPage() {
             </div>
 
             {/* Feed Status Header */}
-            <div className="flex items-center justify-between text-xs text-slate-500 px-1 font-medium">
-              <div className="flex items-center gap-1.5 text-slate-700 font-bold">
-                <Flame className="w-4 h-4 text-rose-600" />
+            <div className="flex items-center justify-between text-sm text-slate-600 px-1 font-medium">
+              <div className="flex items-center gap-2 text-slate-800 font-bold">
+                <Flame className="w-4.5 h-4.5 text-rose-600" />
                 <span>ฟีดล่าสุดทั้งหมด</span>
               </div>
-              <span>เรียงตามโพสต์ใหม่ล่าสุด</span>
+              <span className="text-xs text-slate-500">เรียงตามโพสต์ใหม่ล่าสุด</span>
             </div>
 
             {/* Posts List */}
@@ -109,8 +109,8 @@ export default function CommunityPage() {
                   <ImageIcon className="w-8 h-8 text-slate-300" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-800">ยังไม่มีโพสต์ในชุมชน</h3>
-                  <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+                  <h3 className="text-lg font-bold text-slate-800">ยังไม่มีโพสต์ในชุมชน</h3>
+                  <p className="text-sm text-slate-500 mt-1 max-w-sm mx-auto">
                     เป็นคนแรกที่แชร์ภาพผลงานพรอมต์ หรือข้อคิดเห็นดีๆ ให้เพื่อนตำรวจในจังหวัดได้ชมกันเลย!
                   </p>
                 </div>
@@ -140,17 +140,17 @@ export default function CommunityPage() {
             </div>
 
             {/* User Profile Mini Card */}
-            <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-4.5 space-y-3">
+            <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-5 space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#7a2130] to-[#4A141B] flex items-center justify-center text-white font-black text-base shadow-sm shrink-0">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#7a2130] to-[#4A141B] flex items-center justify-center text-white font-black text-lg shadow-sm shrink-0">
                   {user.full_name?.charAt(0) || "ต"}
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs text-slate-400 font-medium">เข้าสู่ระบบในชื่อ</p>
-                  <p className="text-sm font-bold text-slate-900 truncate leading-tight">
+                  <p className="text-xs text-slate-500 font-medium">เข้าสู่ระบบในชื่อ</p>
+                  <p className="text-base font-bold text-slate-900 truncate leading-tight">
                     {displayName}
                   </p>
-                  <p className="text-[11px] text-[#661D27] font-semibold truncate mt-0.5">
+                  <p className="text-xs text-[#661D27] font-semibold truncate mt-0.5">
                     {user.unit}
                   </p>
                 </div>
@@ -158,23 +158,23 @@ export default function CommunityPage() {
 
               <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 text-center">
                 <div className="bg-slate-50 rounded-2xl py-2 px-3">
-                  <p className="text-[11px] text-slate-400 font-medium">โพสต์ทั้งหมด</p>
-                  <p className="text-base font-black text-slate-800">{posts.length}</p>
+                  <p className="text-xs text-slate-500 font-medium">โพสต์ทั้งหมด</p>
+                  <p className="text-lg font-black text-slate-800">{posts.length}</p>
                 </div>
                 <div className="bg-slate-50 rounded-2xl py-2 px-3">
-                  <p className="text-[11px] text-slate-400 font-medium">การถูกใจรวม</p>
-                  <p className="text-base font-black text-rose-600">{totalLikes}</p>
+                  <p className="text-xs text-slate-500 font-medium">การถูกใจรวม</p>
+                  <p className="text-lg font-black text-rose-600">{totalLikes}</p>
                 </div>
               </div>
             </div>
 
             {/* Community Guidelines & Tips Card */}
-            <div className="bg-gradient-to-br from-white to-slate-50/70 rounded-3xl border border-slate-100 shadow-sm p-4.5 space-y-3">
-              <div className="flex items-center gap-2 text-slate-900 font-bold text-xs">
-                <Shield className="w-4 h-4 text-[#661D27]" />
+            <div className="bg-gradient-to-br from-white to-slate-50/70 rounded-3xl border border-slate-100 shadow-sm p-5 space-y-3">
+              <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
+                <Shield className="w-4.5 h-4.5 text-[#661D27]" />
                 <span>ข้อแนะนำชุมชนสร้างสรรค์</span>
               </div>
-              <ul className="text-xs text-slate-600 space-y-2 leading-relaxed pl-1">
+              <ul className="text-sm text-slate-600 space-y-2.5 leading-relaxed pl-1">
                 <li className="flex items-start gap-2">
                   <span className="text-[#661D27] font-bold">•</span>
                   <span>แลกเปลี่ยนเทคนิคการเขียน Prompt AI ที่ใช้ได้จริงในงานตำรวจ</span>
@@ -188,9 +188,9 @@ export default function CommunityPage() {
                   <span>หลีกเลี่ยงการโพสต์ข้อมูลลับทางราชการหรือข้อมูลส่วนบุคคลที่ไม่ได้รับอนุญาต</span>
                 </li>
               </ul>
-              <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+              <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
                 <span>ภ.จว.สุราษฎร์ธานี</span>
-                <span className="text-[#661D27] font-medium">AI POLICE 2026</span>
+                <span className="text-[#661D27] font-semibold">AI POLICE 2026</span>
               </div>
             </div>
           </aside>

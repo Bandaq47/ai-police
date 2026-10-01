@@ -74,15 +74,15 @@ export default function Navbar() {
               className="flex items-center gap-3 group shrink-0"
             >
               <div className="leading-none">
-                <span className="font-extrabold text-lg tracking-wide flex items-center gap-2">
+                <span className="font-extrabold text-xl tracking-wide flex items-center gap-2">
                   AI POLICE
                   {isAdmin && (
-                    <span className="text-[10px] bg-amber-400 text-amber-950 px-2 py-0.5 rounded-full font-bold">
+                    <span className="text-xs bg-amber-400 text-amber-950 px-2 py-0.5 rounded-full font-bold whitespace-nowrap">
                       ADMIN
                     </span>
                   )}
                 </span>
-                <p className="text-[10px] text-white/60 hidden sm:block tracking-wide mt-0.5">
+                <p className="text-xs text-white/60 hidden sm:block tracking-wide mt-0.5 whitespace-nowrap">
                   ตำรวจภูธรจังหวัดสุราษฎร์ธานี
                 </p>
               </div>
@@ -96,13 +96,13 @@ export default function Navbar() {
                   <Link
                     key={href}
                     href={href}
-                    className={`relative px-3 py-2 rounded-xl text-[13px] font-medium transition-all flex items-center gap-1.5 ${
+                    className={`relative px-3 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2 whitespace-nowrap ${
                       active
                         ? "bg-white/20 text-white font-semibold"
                         : "text-white/75 hover:bg-white/10 hover:text-white"
                     }`}
                   >
-                    <Icon className="w-3.5 h-3.5" />
+                    <Icon className="w-4 h-4 shrink-0" />
                     {label}
                     {active && (
                       <motion.span
@@ -120,10 +120,10 @@ export default function Navbar() {
             <div className="flex items-center gap-2">
               {/* User info — hidden on mobile */}
               <div className="hidden sm:flex flex-col items-end text-right leading-none mr-1">
-                <span className="text-sm font-semibold text-white/95 truncate max-w-[160px]">
+                <span className="text-sm font-semibold text-white/95 truncate max-w-[180px] whitespace-nowrap">
                   {user.rank ? `${user.rank} ` : ""}{user.full_name}
                 </span>
-                <span className="text-[11px] text-white/55 mt-0.5 truncate max-w-[160px]">
+                <span className="text-xs text-white/55 mt-0.5 truncate max-w-[180px] whitespace-nowrap">
                   {user.unit}
                 </span>
               </div>
@@ -132,7 +132,7 @@ export default function Navbar() {
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-1.5 px-3 py-2 text-white/80 hover:text-white hover:bg-white/10
-                           rounded-xl text-xs font-medium transition-all border border-white/0 hover:border-white/20"
+                           rounded-xl text-sm font-medium transition-all border border-white/0 hover:border-white/20 whitespace-nowrap"
                 title="ออกจากระบบ"
               >
                 <LogOut className="w-4 h-4" />
@@ -193,14 +193,14 @@ export default function Navbar() {
               {/* User profile card */}
               <div className="mx-4 mt-4 bg-white/10 rounded-2xl p-4 border border-white/15">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-white/20 border border-white/30 flex items-center justify-center">
-                    <User className="w-5 h-5 text-amber-300" />
+                  <div className="w-11 h-11 rounded-full bg-white/20 border border-white/30 flex items-center justify-center shrink-0">
+                    <User className="w-6 h-6 text-amber-300" />
                   </div>
-                  <div>
-                    <p className="text-sm font-bold text-white leading-tight">
+                  <div className="min-w-0">
+                    <p className="text-base font-bold text-white leading-tight">
                       {user.rank ? `${user.rank} ` : ""}{user.full_name}
                     </p>
-                    <p className="text-xs text-white/60 mt-0.5">{user.unit}</p>
+                    <p className="text-sm text-white/60 mt-0.5 truncate">{user.unit}</p>
                   </div>
                 </div>
               </div>
@@ -214,13 +214,13 @@ export default function Navbar() {
                       key={href}
                       href={href}
                       onClick={() => setMobileOpen(false)}
-                      className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                      className={`flex items-center gap-3 px-4 py-3.5 rounded-xl text-base font-medium transition-all ${
                         active
                           ? "bg-white/20 text-white font-semibold"
                           : "text-white/70 hover:bg-white/10 hover:text-white"
                       }`}
                     >
-                      <Icon className="w-4 h-4" />
+                      <Icon className="w-5 h-5 shrink-0" />
                       {label}
                     </Link>
                   );
@@ -231,11 +231,11 @@ export default function Navbar() {
               <div className="p-4 border-t border-white/10">
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl
-                             border border-white/20 text-white/80 text-sm font-medium
+                  className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl
+                             border border-white/20 text-white/80 text-base font-medium
                              hover:bg-white/10 hover:text-white transition-all"
                 >
-                  <LogOut className="w-4 h-4" />
+                  <LogOut className="w-5 h-5" />
                   ออกจากระบบ
                 </button>
               </div>
@@ -253,14 +253,16 @@ export default function Navbar() {
               <Link
                 key={href}
                 href={href}
-                className={`flex-1 flex flex-col items-center justify-center py-2.5 gap-1 text-[10px] font-medium transition-colors ${
+                className={`flex-1 flex flex-col items-center justify-center py-3 gap-1.5 text-xs font-medium transition-colors ${
                   active ? "text-[#661D27]" : "text-slate-400 hover:text-slate-700"
                 }`}
               >
-                <div className={`p-1.5 rounded-lg transition-all ${active ? "bg-[#661D27]/10" : ""}`}>
-                  <Icon className={`w-4.5 h-4.5 ${active ? "text-[#661D27]" : ""}`} style={{ width: 18, height: 18 }} />
+                <div className={`p-2 rounded-lg transition-all ${active ? "bg-[#661D27]/10" : ""}`}>
+                  <Icon className={`${active ? "text-[#661D27]" : ""}`} style={{ width: 22, height: 22 }} />
                 </div>
-                <span className={active ? "text-[#661D27] font-semibold" : ""}>{label.length > 5 ? label.slice(0, 5) + "…" : label}</span>
+                <span className={`whitespace-nowrap leading-none ${active ? "text-[#661D27] font-semibold" : ""}`}>
+                  {label.length > 6 ? label.slice(0, 6) + "…" : label}
+                </span>
               </Link>
             );
           })}

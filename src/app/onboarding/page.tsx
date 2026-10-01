@@ -132,73 +132,73 @@ export default function OnboardingPage() {
         <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/60 border border-slate-200/80 p-8 sm:p-10 space-y-8">
           {/* Header */}
           <div className="text-center space-y-3">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#661D27]/10 text-[#661D27] text-xs font-semibold">
-              <BadgeCheck className="w-4 h-4" />
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#661D27]/10 text-[#661D27] text-sm font-semibold whitespace-nowrap">
+              <BadgeCheck className="w-4.5 h-4.5" />
               ยินดีต้อนรับสู่ระบบ AI POLICE
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
               บันทึกข้อมูลประวัติผู้ใช้งาน
             </h1>
-            <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto leading-relaxed">
-              กรุณาระบุยศ ชื่อ-สกุล และสังกัดของท่าน เพื่อใช้สำหรับการส่งงานและแสดงผลในใบประกาศนียบัตร
+            <p className="text-sm sm:text-base text-slate-600 max-w-md mx-auto leading-relaxed">
+              กรุณาระบุยศ ชื่อ-สกุล และสังกัดของท่าน เพื่อใช้สำหรับการส่งงานและแสดงผลในระบบ
             </p>
           </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
-              <div className="p-3.5 bg-red-50 border border-red-200 rounded-xl text-red-600 text-xs font-medium">
+              <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm font-semibold">
                 ⚠️ {error}
               </div>
             )}
 
             {/* Readonly Google Account */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-700 flex items-center justify-between">
+              <label className="text-sm font-bold text-slate-800 flex items-center justify-between">
                 <span>บัญชี Google ที่เข้าสู่ระบบ</span>
-                <span className="text-[11px] font-normal text-emerald-600 flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3" /> เชื่อมต่อแล้ว
+                <span className="text-xs font-medium text-emerald-600 flex items-center gap-1 whitespace-nowrap">
+                  <CheckCircle2 className="w-3.5 h-3.5" /> เชื่อมต่อแล้ว
                 </span>
               </label>
               <div className="relative">
-                <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5 pointer-events-none" />
+                <Mail className="w-4.5 h-4.5 text-slate-400 absolute left-3.5 top-3.5 pointer-events-none" />
                 <input
                   type="email"
                   readOnly
                   disabled
                   value={user?.email || ""}
-                  className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-slate-100 border border-slate-200 rounded-xl text-slate-600 cursor-not-allowed font-medium"
+                  className="w-full pl-10 pr-4 py-3 text-base bg-slate-100 border border-slate-200 rounded-xl text-slate-600 cursor-not-allowed font-medium"
                 />
               </div>
             </div>
 
             {/* Gender */}
             <div className="space-y-2 pb-1">
-              <label className="text-xs font-bold text-slate-700">
+              <label className="text-sm font-bold text-slate-800">
                 เพศ (Gender) *
               </label>
               <div className="flex gap-4">
-                <label className="flex items-center justify-center gap-2 cursor-pointer p-3 border border-slate-200 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors flex-1 shadow-sm">
+                <label className="flex items-center justify-center gap-2 cursor-pointer p-3.5 border border-slate-200 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors flex-1 shadow-sm">
                   <input
                     type="radio"
                     name="gender"
                     value="male"
                     checked={gender === "male"}
                     onChange={(e) => setGender(e.target.value as "male" | "female")}
-                    className="w-4 h-4 text-[#661D27] focus:ring-[#661D27]"
+                    className="w-4.5 h-4.5 text-[#661D27] focus:ring-[#661D27]"
                   />
-                  <span className="text-sm font-medium text-slate-700">ชาย</span>
+                  <span className="text-base font-semibold text-slate-800">ชาย</span>
                 </label>
-                <label className="flex items-center justify-center gap-2 cursor-pointer p-3 border border-slate-200 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors flex-1 shadow-sm">
+                <label className="flex items-center justify-center gap-2 cursor-pointer p-3.5 border border-slate-200 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors flex-1 shadow-sm">
                   <input
                     type="radio"
                     name="gender"
                     value="female"
                     checked={gender === "female"}
                     onChange={(e) => setGender(e.target.value as "male" | "female")}
-                    className="w-4 h-4 text-[#661D27] focus:ring-[#661D27]"
+                    className="w-4.5 h-4.5 text-[#661D27] focus:ring-[#661D27]"
                   />
-                  <span className="text-sm font-medium text-slate-700">หญิง</span>
+                  <span className="text-base font-semibold text-slate-800">หญิง</span>
                 </label>
               </div>
             </div>
@@ -206,13 +206,13 @@ export default function OnboardingPage() {
             {/* Rank & Full Name */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="space-y-1.5 sm:col-span-1">
-                <label className="text-xs font-bold text-slate-700">
+                <label className="text-sm font-bold text-slate-800">
                   ยศ (Rank)
                 </label>
                 <select
                   value={rank}
                   onChange={(e) => setRank(e.target.value)}
-                  className="w-full px-3 py-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#661D27]/20 focus:border-[#661D27] transition-all font-medium"
+                  className="w-full px-3 py-3 text-base bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#661D27]/20 focus:border-[#661D27] transition-all font-medium"
                 >
                   <option value="">(ไม่ระบุ)</option>
                   {POLICE_RANKS.map((r) => (
@@ -224,18 +224,18 @@ export default function OnboardingPage() {
               </div>
 
               <div className="space-y-1.5 sm:col-span-2">
-                <label className="text-xs font-bold text-slate-700">
+                <label className="text-sm font-bold text-slate-800">
                   ชื่อ - นามสกุลจริง *
                 </label>
                 <div className="relative">
-                  <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5 pointer-events-none" />
+                  <User className="w-4.5 h-4.5 text-slate-400 absolute left-3.5 top-3.5 pointer-events-none" />
                   <input
                     type="text"
                     required
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder="สมชาย ใจดี"
-                    className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#661D27]/20 focus:border-[#661D27] transition-all placeholder:text-slate-300 font-medium"
+                    className="w-full pl-10 pr-4 py-3 text-base bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#661D27]/20 focus:border-[#661D27] transition-all placeholder:text-slate-400 font-medium"
                   />
                 </div>
               </div>
@@ -243,15 +243,15 @@ export default function OnboardingPage() {
 
             {/* Unit / Police Station */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                <Building className="w-3.5 h-3.5 text-[#661D27]" />
+              <label className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                <Building className="w-4 h-4 text-[#661D27]" />
                 สถานีตำรวจภูธร / หน่วยงานที่สังกัด *
               </label>
               <select
                 required
                 value={unit}
                 onChange={(e) => setUnit(e.target.value)}
-                className="w-full px-4 py-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#661D27]/20 focus:border-[#661D27] transition-all font-medium"
+                className="w-full px-4 py-3 text-base bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#661D27]/20 focus:border-[#661D27] transition-all font-medium"
               >
                 {SURAT_POLICE_STATIONS.map((st) => (
                   <option key={st} value={st}>
@@ -259,24 +259,24 @@ export default function OnboardingPage() {
                   </option>
                 ))}
               </select>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-xs text-slate-500">
                 เลือกหน่วยงานในสังกัดตำรวจภูธรจังหวัดสุราษฎร์ธานี
               </p>
             </div>
 
             {/* Phone */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-700 flex items-center justify-between">
+              <label className="text-sm font-bold text-slate-800 flex items-center justify-between">
                 <span>เบอร์โทรศัพท์ติดต่อ (ไม่บังคับ)</span>
               </label>
               <div className="relative">
-                <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5 pointer-events-none" />
+                <Phone className="w-4.5 h-4.5 text-slate-400 absolute left-3.5 top-3.5 pointer-events-none" />
                 <input
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="081-234-5678"
-                  className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#661D27]/20 focus:border-[#661D27] transition-all placeholder:text-slate-300 font-medium"
+                  className="w-full pl-10 pr-4 py-3 text-base bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#661D27]/20 focus:border-[#661D27] transition-all placeholder:text-slate-400 font-medium"
                 />
               </div>
             </div>
@@ -285,17 +285,17 @@ export default function OnboardingPage() {
             <button
               type="submit"
               disabled={saving}
-              className="w-full py-3.5 oxblood-gradient text-white rounded-xl font-bold text-sm shadow-lg shadow-red-950/20 hover:shadow-xl hover:shadow-red-950/25 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none pt-3 mt-4 cursor-pointer"
+              className="w-full py-4 oxblood-gradient text-white rounded-xl font-bold text-base shadow-lg shadow-red-950/20 hover:shadow-xl hover:shadow-red-950/25 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2.5 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none pt-3 mt-4 cursor-pointer whitespace-nowrap"
             >
               {saving ? (
                 <>
-                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   <span>กำลังบันทึกข้อมูล...</span>
                 </>
               ) : (
                 <>
                   <span>บันทึกข้อมูลและเริ่มใช้งาน</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-5 h-5" />
                 </>
               )}
             </button>
@@ -303,7 +303,7 @@ export default function OnboardingPage() {
 
           {/* Note */}
           <div className="pt-2 border-t border-slate-100 text-center">
-            <p className="text-[11px] text-slate-400">
+            <p className="text-xs text-slate-500">
               ข้อมูลนี้จะใช้เพื่อบันทึกประวัติการส่งงานในระบบ AI POLICE เท่านั้น
             </p>
           </div>
