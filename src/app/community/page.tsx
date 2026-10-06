@@ -42,10 +42,16 @@ export default function CommunityPage() {
   const totalLikes = posts.reduce((sum, p) => sum + (p.like_count || 0), 0);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F5F4F2]">
+    <div
+      className="min-h-dvh bg-[#F5F4F2]"
+      style={{ paddingTop: "calc(56px + env(safe-area-inset-top, 0px))" }}
+    >
       <Navbar />
 
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 pb-24 md:pb-12">
+      <main
+        className="max-w-6xl w-full mx-auto px-4 sm:px-6 py-6"
+        style={{ paddingBottom: "calc(80px + env(safe-area-inset-bottom, 0px))" }}
+      >
         {/* ── Page Header ── */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">

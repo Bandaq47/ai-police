@@ -27,10 +27,16 @@ export default function MySubmissionsPage() {
   const mySubmissions = submissions.filter((s) => s.officer_id === user.id);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF8F8]">
+    <div
+      className="min-h-dvh bg-[#FAF8F8]"
+      style={{ paddingTop: "calc(56px + env(safe-area-inset-top, 0px))" }}
+    >
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      <main
+        className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6"
+        style={{ paddingBottom: "calc(80px + env(safe-area-inset-bottom, 0px))" }}
+      >
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-2">

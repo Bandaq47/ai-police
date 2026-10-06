@@ -171,3 +171,83 @@
   animation: auraPulse 3.2s ease-in-out infinite;
 }
 
+/* ============================
+   Mobile-First: Safe Area & Bottom Nav
+   ============================ */
+
+/* Tap-highlight removal for mobile */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Safe area padding for main content (clears Bottom Tab Bar + home indicator) */
+.pb-safe-nav {
+  padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+}
+
+/* Safe area for fixed Bottom Tab Bar itself */
+.bottom-tab-height {
+  height: calc(60px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Active press scale for tappable cards */
+.tap-scale:active {
+  transform: scale(0.96);
+  transition: transform 0.1s ease;
+}
+
+/* ============================
+   App-style Quick Action Grid Cards
+   ============================ */
+.quick-action-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 1rem 0.5rem;
+  background: #fff;
+  border-radius: 20px;
+  border: 1px solid rgba(102, 29, 39, 0.07);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  text-align: center;
+  min-height: 90px;
+  -webkit-tap-highlight-color: transparent;
+}
+.quick-action-card:active {
+  transform: scale(0.94);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+/* ============================
+   Bottom Tab Bar
+   ============================ */
+.bottom-tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(0,0,0,0.07);
+  box-shadow: 0 -4px 24px rgba(0,0,0,0.08);
+  display: flex;
+  align-items: stretch;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Mobile hero banner */
+.mobile-hero {
+  background: linear-gradient(150deg, #7a2130 0%, #4A141B 60%, #2d0a10 100%);
+  border-radius: 24px;
+}
+
+/* Smooth scroll */
+.scroll-momentum {
+  -webkit-overflow-scrolling: touch;
+}

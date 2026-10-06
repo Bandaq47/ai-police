@@ -22,10 +22,16 @@ export default function LessonsPage() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF8F8]">
+    <div
+      className="min-h-dvh bg-[#FAF8F8]"
+      style={{ paddingTop: "calc(56px + env(safe-area-inset-top, 0px))" }}
+    >
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      <main
+        className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6"
+        style={{ paddingBottom: "calc(80px + env(safe-area-inset-bottom, 0px))" }}
+      >
         {/* Header */}
         <div className="space-y-2">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#661D27]/10 text-[#661D27] rounded-full text-sm font-semibold">
@@ -78,8 +84,6 @@ export default function LessonsPage() {
           ))}
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }

@@ -68,10 +68,16 @@ export default function AIToolsPage() {
       : tools.filter((tool) => tool.category === activeCategory);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F5F4F2]">
+    <div
+      className="min-h-dvh bg-[#F5F4F2]"
+      style={{ paddingTop: "calc(56px + env(safe-area-inset-top, 0px))" }}
+    >
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <main
+        className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8"
+        style={{ paddingBottom: "calc(80px + env(safe-area-inset-bottom, 0px))" }}
+      >
         {/* Header */}
         <div className="flex flex-col items-center text-center space-y-4 mb-8">
           <div className="inline-flex items-center gap-2 bg-[#661D27]/10 px-4.5 py-2 rounded-full text-base font-semibold text-[#661D27]">
@@ -193,8 +199,6 @@ export default function AIToolsPage() {
           </div>
         )}
       </main>
-
-      <Footer />
     </div>
   );
 }

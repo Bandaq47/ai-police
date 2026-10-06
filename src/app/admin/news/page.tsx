@@ -73,10 +73,16 @@ export default function AdminNewsPage() {
   const isAllSelected = news.length > 0 && selectedIds.length === news.length;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F5F4F2]">
+    <div
+      className="min-h-dvh bg-[#F5F4F2]"
+      style={{ paddingTop: "calc(56px + env(safe-area-inset-top, 0px))" }}
+    >
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <main
+        className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8"
+        style={{ paddingBottom: "calc(80px + env(safe-area-inset-bottom, 0px))" }}
+      >
         <div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#661D27]/10 text-[#661D27] rounded-full text-xs font-semibold mb-1">
             <Newspaper className="w-3.5 h-3.5" />
