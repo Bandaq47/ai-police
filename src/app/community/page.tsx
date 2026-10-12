@@ -17,18 +17,57 @@ import {
   MessageSquare,
   Flame,
   Info,
-  ChevronRight
+  ChevronRight,
+  ChevronLeft,
+  X
 } from "lucide-react";
+
+interface LightboxState {
+  images: string[];
+  currentIndex: number;
+}
 
 export default function CommunityPage() {
   const { user, posts, fetchPosts } = useAuth();
   const router = useRouter();
-  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+  const [lightboxState, setLightboxState] = useState<LightboxState | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     if (!user) router.push("/login");
   }, [user, router]);
+
+  // Keyboard navigation for Lightbox
+  useEffect(() => {
+    if (!lightboxState) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setLightboxState(null);
+      } else if (e.key === "ArrowLeft") {
+        setLightboxState((prev) =>
+          prev
+            ? {
+                ...prev,
+                currentIndex: (prev.currentIndex - 1 + prev.images.length) % prev.images.length,
+              }
+            : null
+        );
+      } else if (e.key === "ArrowRight") {
+        setLightboxState((prev) =>
+          prev
+            ? {
+                ...prev,
+                currentIndex: (prev.currentIndex + 1) % prev.images.length,
+              }
+            : null
+        );
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [lightboxState]);
 
   if (!user) return null;
 
@@ -128,7 +167,13 @@ export default function CommunityPage() {
                     <PostCard
                       key={post.id}
                       post={post}
-                      onImageClick={(url) => setLightboxUrl(url)}
+                      onImageClick={(url, allImages, initialIndex) => {
+                        const imgs = allImages && allImages.length > 0 ? allImages : [url];
+                        setLightboxState({
+                          images: imgs,
+                          currentIndex: initialIndex ?? 0,
+                        });
+                      }}
                     />
                   ))}
                 </AnimatePresence>
@@ -206,34 +251,136 @@ export default function CommunityPage() {
 
       <Footer />
 
-      {/* ── Image Lightbox Modal ── */}
+      {/* ── Facebook-Style Multi-Image Lightbox Modal ── */}
       <AnimatePresence>
-        {lightboxUrl && (
+        {lightboxState && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setLightboxUrl(null)}
-            className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 cursor-zoom-out"
+            onClick={() => setLightboxState(null)}
+            className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex flex-col items-center justify-between p-3 sm:p-6 select-none cursor-default"
           >
-            <motion.img
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 320, damping: 28 }}
-              src={lightboxUrl}
-              alt="ภาพขยาย"
-              className="max-w-full max-h-[92vh] rounded-2xl shadow-2xl object-contain"
+            {/* Top Bar: Counter & Close button */}
+            <div className="w-full flex items-center justify-between text-white z-20 py-1">
+              <div className="flex items-center gap-2">
+                <span className="bg-white/15 backdrop-blur-md px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold tracking-wide">
+                  {lightboxState.currentIndex + 1} / {lightboxState.images.length}
+                </span>
+                {lightboxState.images.length > 1 && (
+                  <span className="text-xs text-white/60 hidden sm:inline">
+                    (ใช้ปุ่มลูกศร ◀ ▶ หรือคลิกเพื่อเปลี่ยนรูปภาพ)
+                  </span>
+                )}
+              </div>
+              <button
+                onClick={() => setLightboxState(null)}
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/25
+                           text-white flex items-center justify-center transition-all cursor-pointer"
+                title="ปิด (Esc)"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Middle Stage: Image & Left/Right Navigation */}
+            <div
+              className="relative w-full flex-1 flex items-center justify-center min-h-0 py-2"
               onClick={(e) => e.stopPropagation()}
-            />
-            <button
-              onClick={() => setLightboxUrl(null)}
-              className="absolute top-5 right-5 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20
-                         text-white flex items-center justify-center text-lg font-light transition-all cursor-pointer"
-              title="ปิด"
             >
-              ✕
-            </button>
+              {/* Previous Button */}
+              {lightboxState.images.length > 1 && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setLightboxState((prev) =>
+                      prev
+                        ? {
+                            ...prev,
+                            currentIndex:
+                              (prev.currentIndex - 1 + prev.images.length) %
+                              prev.images.length,
+                          }
+                        : null
+                    );
+                  }}
+                  className="absolute left-1 sm:left-4 z-30 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-black/50 hover:bg-black/80
+                             border border-white/20 text-white flex items-center justify-center transition-all
+                             shadow-xl cursor-pointer hover:scale-105"
+                  title="รูปภาพก่อนหน้า"
+                >
+                  <ChevronLeft className="w-6 h-6 sm:w-7 sm:h-7" />
+                </button>
+              )}
+
+              {/* Main Image with animation */}
+              <AnimatePresence mode="wait">
+                <motion.img
+                  key={lightboxState.images[lightboxState.currentIndex]}
+                  initial={{ opacity: 0, scale: 0.96 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.96 }}
+                  transition={{ duration: 0.16 }}
+                  src={lightboxState.images[lightboxState.currentIndex]}
+                  alt={`ภาพที่ ${lightboxState.currentIndex + 1}`}
+                  className="max-w-full max-h-[80vh] rounded-2xl shadow-2xl object-contain cursor-default"
+                />
+              </AnimatePresence>
+
+              {/* Next Button */}
+              {lightboxState.images.length > 1 && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setLightboxState((prev) =>
+                      prev
+                        ? {
+                            ...prev,
+                            currentIndex:
+                              (prev.currentIndex + 1) % prev.images.length,
+                          }
+                        : null
+                    );
+                  }}
+                  className="absolute right-1 sm:right-4 z-30 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-black/50 hover:bg-black/80
+                             border border-white/20 text-white flex items-center justify-center transition-all
+                             shadow-xl cursor-pointer hover:scale-105"
+                  title="รูปภาพถัดไป"
+                >
+                  <ChevronRight className="w-6 h-6 sm:w-7 sm:h-7" />
+                </button>
+              )}
+            </div>
+
+            {/* Bottom: Thumbnail Bar if multiple photos */}
+            {lightboxState.images.length > 1 && (
+              <div
+                className="w-full flex items-center justify-center gap-2 overflow-x-auto py-2 z-20 max-w-2xl px-2 scrollbar-none"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {lightboxState.images.map((img, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() =>
+                      setLightboxState((prev) =>
+                        prev ? { ...prev, currentIndex: idx } : null
+                      )
+                    }
+                    className={`relative w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden shrink-0 border-2 transition-all cursor-pointer ${
+                      idx === lightboxState.currentIndex
+                        ? "border-amber-400 scale-105 shadow-md shadow-amber-400/30"
+                        : "border-transparent opacity-50 hover:opacity-90"
+                    }`}
+                  >
+                    <img
+                      src={img}
+                      alt={`Thumbnail ${idx + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

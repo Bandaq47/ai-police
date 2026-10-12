@@ -20,7 +20,7 @@ interface AuthContextType {
   addNews: (title: string, body: string, urgent: boolean, url?: string, youtube_url?: string) => Promise<{ success: boolean; errorMessage?: string }>;
   deleteNews: (id: string) => Promise<boolean>;
   addSubmission: (submissionData: { lesson_id: string; prompt_text: string; notes?: string; image_url?: string }) => Promise<boolean>;
-  addPost: (content: string, imageFile?: File) => Promise<{ success: boolean; errorMessage?: string }>;
+  addPost: (content: string, imageFiles?: File[] | File) => Promise<{ success: boolean; errorMessage?: string }>;
   deletePost: (id: string) => Promise<boolean>;
   editPost: (id: string, content: string) => Promise<boolean>;
   likePost: (postId: string) => Promise<boolean>;
@@ -457,44 +457,55 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // ─── Community Post Functions ───
 
-  const addPost = async (content: string, imageFile?: File): Promise<{ success: boolean; errorMessage?: string }> => {
+  const addPost = async (content: string, imageFiles?: File[] | File): Promise<{ success: boolean; errorMessage?: string }> => {
     if (!user) return { success: false, errorMessage: "กรุณาเข้าสู่ระบบก่อนสร้างโพสต์" };
 
-    let image_url: string | undefined;
+    const files: File[] = Array.isArray(imageFiles)
+      ? imageFiles
+      : imageFiles
+      ? [imageFiles]
+      : [];
 
-    // Upload image to Supabase Storage if provided
-    if (imageFile) {
-      const fileExt = imageFile.name.split('.').pop() || 'png';
-      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
-      
-      // Try bucket 'post-images' first
-      let uploadRes = await supabase.storage
-        .from('post-images')
-        .upload(fileName, imageFile, { cacheControl: '3600', upsert: false });
+    const imageUrls: string[] = [];
 
-      // If 'post-images' fails (e.g. bucket doesn't exist or RLS), try existing 'submissions' bucket
-      if (uploadRes.error) {
-        console.warn("Upload to 'post-images' failed, trying fallback bucket 'submissions':", uploadRes.error);
-        uploadRes = await supabase.storage
-          .from('submissions')
-          .upload(`posts/${fileName}`, imageFile, { cacheControl: '3600', upsert: false });
-      }
+    // Upload images to Supabase Storage if provided
+    if (files.length > 0) {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const fileExt = file.name.split('.').pop() || 'png';
+        const fileName = `${user.id}/${Date.now()}-${i}-${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
 
-      if (uploadRes.error) {
-        console.error("Image upload failed completely:", uploadRes.error);
-        const isRls = uploadRes.error.message?.toLowerCase().includes("row-level security") || uploadRes.error.message?.toLowerCase().includes("policy");
-        return { 
-          success: false, 
-          errorMessage: isRls 
-            ? "ติดสิทธิ์ Storage (RLS): กรุณารันคำสั่ง SQL ใน Supabase เพื่อเปิดสิทธิ์อัปโหลดรูปภาพ" 
-            : `อัปโหลดรูปภาพไม่สำเร็จ: ${uploadRes.error.message}` 
-        };
-      } else {
-        const bucketUsed = uploadRes.data?.path?.startsWith('posts/') ? 'submissions' : 'post-images';
-        const { data: urlData } = supabase.storage
-          .from(bucketUsed)
-          .getPublicUrl(uploadRes.data?.path || fileName);
-        image_url = urlData.publicUrl;
+        // Try bucket 'post-images' first
+        let uploadRes = await supabase.storage
+          .from('post-images')
+          .upload(fileName, file, { cacheControl: '3600', upsert: false });
+
+        // If 'post-images' fails (e.g. bucket doesn't exist or RLS), try existing 'submissions' bucket
+        if (uploadRes.error) {
+          console.warn("Upload to 'post-images' failed, trying fallback bucket 'submissions':", uploadRes.error);
+          uploadRes = await supabase.storage
+            .from('submissions')
+            .upload(`posts/${fileName}`, file, { cacheControl: '3600', upsert: false });
+        }
+
+        if (uploadRes.error) {
+          console.error("Image upload failed completely:", uploadRes.error);
+          const isRls = uploadRes.error.message?.toLowerCase().includes("row-level security") || uploadRes.error.message?.toLowerCase().includes("policy");
+          return {
+            success: false,
+            errorMessage: isRls
+              ? "ติดสิทธิ์ Storage (RLS): กรุณารันคำสั่ง SQL ใน Supabase เพื่อเปิดสิทธิ์อัปโหลดรูปภาพ"
+              : `อัปโหลดรูปภาพที่ ${i + 1} ไม่สำเร็จ: ${uploadRes.error.message}`
+          };
+        } else {
+          const bucketUsed = uploadRes.data?.path?.startsWith('posts/') ? 'submissions' : 'post-images';
+          const { data: urlData } = supabase.storage
+            .from(bucketUsed)
+            .getPublicUrl(uploadRes.data?.path || fileName);
+          if (urlData?.publicUrl) {
+            imageUrls.push(urlData.publicUrl);
+          }
+        }
       }
     }
 
@@ -502,11 +513,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       user_id: user.id,
       content,
     };
-    if (image_url) payload.image_url = image_url;
+    if (imageUrls.length > 0) {
+      payload.image_url = imageUrls[0];
+      payload.image_urls = imageUrls;
+    }
 
-    const { error } = await supabase
+    let { error } = await supabase
       .from('posts')
       .insert([payload]);
+
+    // Fallback if 'image_urls' column has not been added to DB yet
+    if (error && (error.message?.includes('image_urls') || error.code === 'PGRST204' || error.message?.includes('does not exist'))) {
+      console.warn("Attempting insert fallback without 'image_urls' column...");
+      const fallbackPayload: any = {
+        user_id: user.id,
+        content,
+      };
+      if (imageUrls.length > 0) {
+        fallbackPayload.image_url = imageUrls[0];
+      }
+      const retryRes = await supabase
+        .from('posts')
+        .insert([fallbackPayload]);
+      error = retryRes.error;
+    }
 
     if (!error) {
       await fetchPosts();

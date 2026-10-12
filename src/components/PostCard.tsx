@@ -21,7 +21,7 @@ import {
 
 interface PostCardProps {
   post: PostWithDetails;
-  onImageClick?: (url: string) => void;
+  onImageClick?: (url: string, allImages?: string[], initialIndex?: number) => void;
 }
 
 // Format time in Instagram style (e.g., "19 ชม.", "5 นาที", "2 วัน")
@@ -65,9 +65,14 @@ export default function PostCard({ post, onImageClick }: PostCardProps) {
   const authorName = `${post.profiles?.rank ? post.profiles.rank + " " : ""}${post.profiles?.full_name || "ตำรวจผู้เข้าอบรม"}`;
   const authorInitial = post.profiles?.full_name?.charAt(0) || "ต";
 
-  // Double-tap image handler (Instagram signature interaction)
+  // Collect all images (new image_urls array or legacy image_url)
+  const images: string[] = (post.image_urls && post.image_urls.length > 0)
+    ? post.image_urls
+    : (post.image_url ? [post.image_url] : []);
+
+  // Double-tap image handler (Social media signature interaction)
   const lastTapRef = useRef<number>(0);
-  const handleImageTap = () => {
+  const handleImageTap = (imgUrl: string, index: number) => {
     const now = Date.now();
     if (now - lastTapRef.current < 300) {
       // Double tap detected!
@@ -81,7 +86,7 @@ export default function PostCard({ post, onImageClick }: PostCardProps) {
       // Single tap -> open lightbox after short delay if not double tapped
       setTimeout(() => {
         if (Date.now() - lastTapRef.current >= 290) {
-          if (post.image_url) onImageClick?.(post.image_url);
+          onImageClick?.(imgUrl, images, index);
         }
       }, 300);
     }
@@ -277,20 +282,138 @@ export default function PostCard({ post, onImageClick }: PostCardProps) {
         </div>
       </div>
 
-      {/* ── 2. Post Media (Image) ── */}
-      {post.image_url && (
-        <div className="relative w-full bg-slate-950 overflow-hidden select-none group cursor-pointer">
-          <div
-            className="w-full flex items-center justify-center max-h-[540px] bg-slate-900/50"
-            onClick={handleImageTap}
-          >
-            <img
-              src={post.image_url}
-              alt="Post media"
-              className="w-full h-auto max-h-[540px] object-contain group-hover:brightness-[0.98] transition-all"
-              loading="lazy"
-            />
-          </div>
+      {/* ── 2. Post Media (Facebook Style Multiple Images Collage Grid) ── */}
+      {images.length > 0 && (
+        <div className="relative w-full bg-slate-950 overflow-hidden select-none group">
+          {/* Badge showing photo count if multiple */}
+          {images.length > 1 && (
+            <div className="absolute top-3 right-3 z-10 bg-black/60 backdrop-blur-md text-white text-xs font-semibold px-2.5 py-1 rounded-full shadow-md pointer-events-none flex items-center gap-1.5">
+              <span>📷</span>
+              <span>{images.length} รูปภาพ</span>
+            </div>
+          )}
+
+          {/* 1 Image: Large display */}
+          {images.length === 1 && (
+            <div
+              className="w-full flex items-center justify-center max-h-[540px] bg-slate-900/50 cursor-pointer"
+              onClick={() => handleImageTap(images[0], 0)}
+            >
+              <img
+                src={images[0]}
+                alt="Post media"
+                className="w-full h-auto max-h-[540px] object-contain group-hover:brightness-[0.98] transition-all"
+                loading="lazy"
+              />
+            </div>
+          )}
+
+          {/* 2 Images: 2 columns side-by-side */}
+          {images.length === 2 && (
+            <div className="grid grid-cols-2 gap-1 w-full bg-slate-950">
+              {images.map((img, idx) => (
+                <div
+                  key={idx}
+                  className="relative h-64 sm:h-80 overflow-hidden cursor-pointer group/item"
+                  onClick={() => handleImageTap(img, idx)}
+                >
+                  <img
+                    src={img}
+                    alt={`Photo ${idx + 1}`}
+                    className="w-full h-full object-cover group-hover/item:brightness-[0.95] group-hover/item:scale-[1.02] transition-all duration-200"
+                    loading="lazy"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* 3 Images: 1 big top, 2 smaller bottom */}
+          {images.length === 3 && (
+            <div className="grid grid-cols-2 gap-1 w-full bg-slate-950">
+              <div
+                className="col-span-2 relative h-60 sm:h-72 overflow-hidden cursor-pointer group/item"
+                onClick={() => handleImageTap(images[0], 0)}
+              >
+                <img
+                  src={images[0]}
+                  alt="Photo 1"
+                  className="w-full h-full object-cover group-hover/item:brightness-[0.95] group-hover/item:scale-[1.01] transition-all duration-200"
+                  loading="lazy"
+                />
+              </div>
+              {images.slice(1, 3).map((img, idx) => (
+                <div
+                  key={idx + 1}
+                  className="relative h-40 sm:h-48 overflow-hidden cursor-pointer group/item"
+                  onClick={() => handleImageTap(img, idx + 1)}
+                >
+                  <img
+                    src={img}
+                    alt={`Photo ${idx + 2}`}
+                    className="w-full h-full object-cover group-hover/item:brightness-[0.95] group-hover/item:scale-[1.02] transition-all duration-200"
+                    loading="lazy"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* 4 Images: 2x2 grid */}
+          {images.length === 4 && (
+            <div className="grid grid-cols-2 gap-1 w-full bg-slate-950">
+              {images.map((img, idx) => (
+                <div
+                  key={idx}
+                  className="relative h-44 sm:h-56 overflow-hidden cursor-pointer group/item"
+                  onClick={() => handleImageTap(img, idx)}
+                >
+                  <img
+                    src={img}
+                    alt={`Photo ${idx + 1}`}
+                    className="w-full h-full object-cover group-hover/item:brightness-[0.95] group-hover/item:scale-[1.02] transition-all duration-200"
+                    loading="lazy"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* 5+ Images: Facebook classic 4-grid collage with +N overlay on the 4th item */}
+          {images.length >= 5 && (
+            <div className="grid grid-cols-2 gap-1 w-full bg-slate-950">
+              {images.slice(0, 3).map((img, idx) => (
+                <div
+                  key={idx}
+                  className="relative h-44 sm:h-56 overflow-hidden cursor-pointer group/item"
+                  onClick={() => handleImageTap(img, idx)}
+                >
+                  <img
+                    src={img}
+                    alt={`Photo ${idx + 1}`}
+                    className="w-full h-full object-cover group-hover/item:brightness-[0.95] group-hover/item:scale-[1.02] transition-all duration-200"
+                    loading="lazy"
+                  />
+                </div>
+              ))}
+              {/* 4th slot with overlay */}
+              <div
+                className="relative h-44 sm:h-56 overflow-hidden cursor-pointer group/item"
+                onClick={() => handleImageTap(images[3], 3)}
+              >
+                <img
+                  src={images[3]}
+                  alt="Photo 4"
+                  className="w-full h-full object-cover brightness-[0.55] group-hover/item:scale-[1.03] transition-all duration-200"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-white font-black text-2xl sm:text-3xl tracking-wide group-hover/item:bg-black/50 transition-colors">
+                  <span>+{images.length - 3}</span>
+                  <span className="text-xs font-semibold tracking-normal mt-0.5 opacity-90">รูปเพิ่มเติม</span>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Double-tap Floating Heart Animation */}
           <AnimatePresence>
@@ -300,7 +423,7 @@ export default function PostCard({ post, onImageClick }: PostCardProps) {
                 animate={{ scale: [0, 1.25, 1], opacity: [0, 1, 0] }}
                 exit={{ scale: 1.4, opacity: 0 }}
                 transition={{ duration: 0.7, ease: "easeOut" }}
-                className="absolute inset-0 flex items-center justify-center pointer-events-none drop-shadow-2xl"
+                className="absolute inset-0 flex items-center justify-center pointer-events-none drop-shadow-2xl z-20"
               >
                 <Heart className="w-24 h-24 text-white fill-red-500 stroke-white stroke-[1.5]" />
               </motion.div>

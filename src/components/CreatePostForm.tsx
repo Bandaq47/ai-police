@@ -3,7 +3,16 @@
 import React, { useState, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { Image as ImageIcon, X, Send, Loader2, PenSquare, Sparkles } from "lucide-react";
+import {
+  Image as ImageIcon,
+  X,
+  Send,
+  Loader2,
+  PenSquare,
+  Sparkles,
+  Plus,
+  Trash2
+} from "lucide-react";
 
 interface CreatePostFormProps {
   onPostCreated?: () => void;
@@ -13,8 +22,8 @@ interface CreatePostFormProps {
 export default function CreatePostForm({ onPostCreated, className = "" }: CreatePostFormProps) {
   const { user, addPost } = useAuth();
   const [content, setContent] = useState("");
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -24,42 +33,90 @@ export default function CreatePostForm({ onPostCreated, className = "" }: Create
   const displayName = `${user.rank ? user.rank + " " : ""}${user.full_name}`;
   const authorInitial = user.full_name?.charAt(0) || "ต";
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handleFilesSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      setError("ขนาดไฟล์ต้องไม่เกิน 5 MB");
+    // Limit maximum total images
+    const MAX_IMAGES = 10;
+    const remainingSlots = MAX_IMAGES - imageFiles.length;
+
+    if (remainingSlots <= 0) {
+      setError(`คุณสามารถแนบรูปภาพได้สูงสุด ${MAX_IMAGES} รูปต่อโพสต์`);
+      if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
 
-    setImageFile(file);
-    setError("");
-    const reader = new FileReader();
-    reader.onload = (ev) => setImagePreview(ev.target?.result as string);
-    reader.readAsDataURL(file);
+    const filesToAdd = files.slice(0, remainingSlots);
+    if (files.length > remainingSlots) {
+      setError(`แนบได้สูงสุด ${MAX_IMAGES} รูป (คัดเลือก ${remainingSlots} รูปแรก)`);
+    } else {
+      setError("");
+    }
+
+    // Validate size (5MB per file)
+    const validFiles: File[] = [];
+    for (const f of filesToAdd) {
+      if (f.size > 5 * 1024 * 1024) {
+        setError(`ไฟล์ "${f.name}" มีขนาดเกิน 5 MB กรุณาเลือกรูปภาพขนาดเล็กลง`);
+      } else {
+        validFiles.push(f);
+      }
+    }
+
+    if (validFiles.length === 0) {
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
+    // Read previews
+    const newPreviews: string[] = [];
+    let loadedCount = 0;
+
+    validFiles.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        if (ev.target?.result) {
+          newPreviews.push(ev.target.result as string);
+        }
+        loadedCount++;
+        if (loadedCount === validFiles.length) {
+          setImageFiles((prev) => [...prev, ...validFiles]);
+          setImagePreviews((prev) => [...prev, ...newPreviews]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const handleRemoveImage = () => {
-    setImageFile(null);
-    setImagePreview(null);
+  const handleRemoveOneImage = (indexToRemove: number) => {
+    setImageFiles((prev) => prev.filter((_, idx) => idx !== indexToRemove));
+    setImagePreviews((prev) => prev.filter((_, idx) => idx !== indexToRemove));
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleClearAllImages = () => {
+    setImageFiles([]);
+    setImagePreviews([]);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!content.trim() && !imageFile) {
-      setError("กรุณาพิมพ์ข้อความหรือแนบรูปภาพ");
+    if (!content.trim() && imageFiles.length === 0) {
+      setError("กรุณาพิมพ์ข้อความหรือแนบรูปภาพอย่างน้อย 1 รูป");
       return;
     }
 
     setLoading(true);
     setError("");
 
-    const res = await addPost(content.trim(), imageFile || undefined);
+    const res = await addPost(content.trim(), imageFiles);
     if (res.success) {
       setContent("");
-      handleRemoveImage();
+      handleClearAllImages();
       onPostCreated?.();
     } else {
       setError(res.errorMessage || "เกิดข้อผิดพลาดในการโพสต์ กรุณาลองใหม่อีกครั้ง");
@@ -105,7 +162,7 @@ export default function CreatePostForm({ onPostCreated, className = "" }: Create
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder={`วันนี้คุณมีเทคนิค AI อะไรอยากบอกเพื่อนตำรวจบ้าง?...`}
+          placeholder="วันนี้คุณมีเทคนิค AI อะไรอยากบอกเพื่อนตำรวจบ้าง?..."
           rows={3}
           className="w-full resize-none text-base text-slate-800 placeholder:text-slate-400 
                      bg-slate-50/80 rounded-2xl p-3.5 border border-slate-200/80
@@ -114,32 +171,85 @@ export default function CreatePostForm({ onPostCreated, className = "" }: Create
         />
       </div>
 
-      {/* ── Image Preview Thumbnail (Compact) ── */}
+      {/* ── Facebook-Style Multi-Image Preview Container ── */}
       <AnimatePresence>
-        {imagePreview && (
+        {imagePreviews.length > 0 && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.96 }}
+            initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.96 }}
-            className="relative rounded-2xl overflow-hidden border border-slate-200 bg-slate-900/5 group"
+            exit={{ opacity: 0, scale: 0.98 }}
+            className="rounded-2xl border border-slate-200 bg-slate-50/70 p-3 space-y-2.5"
           >
-            <img
-              src={imagePreview}
-              alt="Preview"
-              className="w-full max-h-48 object-cover"
-            />
-            <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center" />
-            <button
-              type="button"
-              onClick={handleRemoveImage}
-              className="absolute top-2 right-2 bg-black/70 hover:bg-black/90 text-white 
-                         rounded-full p-1.5 shadow-md transition-all"
-              title="ลบรูปภาพ"
+            {/* Header: Photo Count & Clear button */}
+            <div className="flex items-center justify-between text-xs px-1">
+              <span className="font-semibold text-slate-700 flex items-center gap-1.5">
+                <ImageIcon className="w-3.5 h-3.5 text-emerald-600" />
+                รูปภาพที่แนบ ({imagePreviews.length}/10 รูป)
+              </span>
+              <button
+                type="button"
+                onClick={handleClearAllImages}
+                className="text-red-500 hover:text-red-700 font-semibold flex items-center gap-1 transition-colors"
+              >
+                <Trash2 className="w-3 h-3" />
+                ล้างทั้งหมด
+              </button>
+            </div>
+
+            {/* Preview Grid */}
+            <div
+              className={`grid gap-2 ${
+                imagePreviews.length === 1
+                  ? "grid-cols-1"
+                  : imagePreviews.length === 2
+                  ? "grid-cols-2"
+                  : "grid-cols-3"
+              }`}
             >
-              <X className="w-4 h-4" />
-            </button>
-            <div className="absolute bottom-2 left-2 bg-black/70 backdrop-blur-sm text-white text-xs px-2.5 py-1 rounded-md">
-              แนบแล้ว
+              {imagePreviews.map((previewUrl, index) => (
+                <div
+                  key={index}
+                  className="relative group rounded-xl overflow-hidden border border-slate-200 bg-slate-900 aspect-video sm:aspect-square"
+                >
+                  <img
+                    src={previewUrl}
+                    alt={`Preview ${index + 1}`}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                  />
+                  <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                  {/* Remove specific image */}
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveOneImage(index)}
+                    className="absolute top-1.5 right-1.5 bg-black/75 hover:bg-red-600 text-white 
+                               rounded-full p-1 shadow-md transition-colors"
+                    title="ลบรูปนี้"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+
+                  {/* Photo index badge */}
+                  <span className="absolute bottom-1.5 left-1.5 bg-black/70 backdrop-blur-sm text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
+                    {index + 1}
+                  </span>
+                </div>
+              ))}
+
+              {/* Add more photo slot if under 10 */}
+              {imagePreviews.length < 10 && (
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="border-2 border-dashed border-slate-300 hover:border-[#661D27] hover:bg-[#661D27]/5 
+                             rounded-xl flex flex-col items-center justify-center p-3 text-slate-500 hover:text-[#661D27]
+                             transition-all aspect-video sm:aspect-square group cursor-pointer"
+                  title="เพิ่มรูปภาพอีก"
+                >
+                  <Plus className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                  <span className="text-xs font-semibold mt-1">เพิ่มภาพ</span>
+                </button>
+              )}
             </div>
           </motion.div>
         )}
@@ -154,7 +264,7 @@ export default function CreatePostForm({ onPostCreated, className = "" }: Create
 
       {/* ── Action Bar (Compact) ── */}
       <div className="flex items-center justify-between pt-1 border-t border-slate-50">
-        {/* Attach Image Button */}
+        {/* Attach Images Button */}
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
@@ -162,13 +272,16 @@ export default function CreatePostForm({ onPostCreated, className = "" }: Create
                      text-slate-700 hover:text-[#661D27] hover:bg-slate-100 transition-all cursor-pointer whitespace-nowrap"
         >
           <ImageIcon className="w-4.5 h-4.5 text-emerald-600 shrink-0" />
-          <span>{imageFile ? "เปลี่ยนรูป" : "แนบภาพ"}</span>
+          <span>
+            {imageFiles.length > 0 ? `แนบภาพเพิ่ม (${imageFiles.length})` : "แนบภาพ"}
+          </span>
         </button>
         <input
           ref={fileInputRef}
           type="file"
           accept="image/*"
-          onChange={handleImageSelect}
+          multiple
+          onChange={handleFilesSelect}
           className="hidden"
         />
 
@@ -176,7 +289,7 @@ export default function CreatePostForm({ onPostCreated, className = "" }: Create
         <button
           type="button"
           onClick={() => handleSubmit()}
-          disabled={loading || (!content.trim() && !imageFile)}
+          disabled={loading || (!content.trim() && imageFiles.length === 0)}
           className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold
                      bg-gradient-to-r from-[#7a2130] to-[#661D27] text-white hover:from-[#661D27] hover:to-[#4A141B] 
                      disabled:opacity-40 disabled:cursor-not-allowed shadow-sm hover:shadow transition-all cursor-pointer whitespace-nowrap"
@@ -184,7 +297,11 @@ export default function CreatePostForm({ onPostCreated, className = "" }: Create
           {loading ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
-              <span>กำลังโพสต์...</span>
+              <span>
+                {imageFiles.length > 1
+                  ? `กำลังอัปโหลด ${imageFiles.length} ภาพ...`
+                  : "กำลังโพสต์..."}
+              </span>
             </>
           ) : (
             <>

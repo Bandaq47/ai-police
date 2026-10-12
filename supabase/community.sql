@@ -53,8 +53,12 @@ create table if not exists public.posts (
   user_id uuid references public.profiles(id) on delete cascade not null,
   content text not null,
   image_url text,
+  image_urls text[],
   created_at timestamptz default now()
 );
+
+-- Ensure image_urls column exists if table was already created
+alter table public.posts add column if not exists image_urls text[];
 
 create table if not exists public.post_likes (
   id uuid primary key default gen_random_uuid(),
