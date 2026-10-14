@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
@@ -192,20 +193,24 @@ export default function CommunityPage() {
 
             {/* User Profile Mini Card */}
             <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-5 space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#7a2130] to-[#4A141B] flex items-center justify-center text-white font-black text-lg shadow-sm shrink-0">
-                  {user.full_name?.charAt(0) || "ต"}
+              <Link href="/profile" className="flex items-center gap-3 group">
+                <div className="w-12 h-12 rounded-2xl overflow-hidden bg-gradient-to-br from-[#7a2130] to-[#4A141B] flex items-center justify-center text-white font-black text-lg shadow-sm shrink-0 ring-2 ring-[#661D27]/10 group-hover:ring-[#661D27]/30 transition-all">
+                  {user.avatar_url ? (
+                    <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    user.full_name?.charAt(0) || "ต"
+                  )}
                 </div>
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <p className="text-xs text-slate-500 font-medium">เข้าสู่ระบบในชื่อ</p>
-                  <p className="text-base font-bold text-slate-900 truncate leading-tight">
+                  <p className="text-base font-bold text-slate-900 truncate leading-tight group-hover:text-[#661D27] transition-colors">
                     {displayName}
                   </p>
                   <p className="text-xs text-[#661D27] font-semibold truncate mt-0.5">
                     {user.unit}
                   </p>
                 </div>
-              </div>
+              </Link>
 
               <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 text-center">
                 <div className="bg-slate-50 rounded-2xl py-2 px-3">

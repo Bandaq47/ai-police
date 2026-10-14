@@ -148,8 +148,12 @@ export default function CreatePostForm({ onPostCreated, className = "" }: Create
 
       {/* ── User Profile Snapshot ── */}
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#7a2130] to-[#4A141B] flex items-center justify-center text-white font-bold text-base shadow-sm shrink-0">
-          {authorInitial}
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#7a2130] to-[#4A141B] flex items-center justify-center text-white font-bold text-base shadow-sm shrink-0 overflow-hidden">
+          {user.avatar_url ? (
+            <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
+          ) : (
+            authorInitial
+          )}
         </div>
         <div className="min-w-0">
           <p className="text-sm font-bold text-slate-900 truncate">{displayName}</p>

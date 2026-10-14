@@ -62,7 +62,9 @@ export default function PostCard({ post, onImageClick }: PostCardProps) {
   const isOwner = user?.id === post.user_id;
   const isAdmin = user?.role === "admin";
   const canDelete = isOwner || isAdmin;
-  const authorName = `${post.profiles?.rank ? post.profiles.rank + " " : ""}${post.profiles?.full_name || "ตำรวจผู้เข้าอบรม"}`;
+  const showRank = post.profiles?.show_rank ?? true;
+  const rankPrefix = (showRank && post.profiles?.rank) ? post.profiles.rank + " " : "";
+  const authorName = `${rankPrefix}${post.profiles?.full_name || "ตำรวจผู้เข้าอบรม"}`;
   const authorInitial = post.profiles?.full_name?.charAt(0) || "ต";
 
   // Collect all images (new image_urls array or legacy image_url)
@@ -212,8 +214,12 @@ export default function PostCard({ post, onImageClick }: PostCardProps) {
           {/* Avatar with IG-like ring */}
           <div className="relative p-0.5 rounded-full bg-gradient-to-tr from-[#661D27] via-rose-600 to-amber-500 shrink-0">
             <div className="w-10 h-10 rounded-full bg-white p-0.5">
-              <div className="w-full h-full rounded-full bg-gradient-to-br from-[#7a2130] to-[#4A141B] flex items-center justify-center text-white font-bold text-sm shadow-inner">
-                {authorInitial}
+              <div className="w-full h-full rounded-full bg-gradient-to-br from-[#7a2130] to-[#4A141B] flex items-center justify-center text-white font-bold text-sm shadow-inner overflow-hidden">
+                {post.profiles?.avatar_url ? (
+                  <img src={post.profiles.avatar_url} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  authorInitial
+                )}
               </div>
             </div>
           </div>
@@ -596,8 +602,12 @@ export default function PostCard({ post, onImageClick }: PostCardProps) {
               return (
                 <div key={c.id} className="flex items-start justify-between gap-2 group text-sm">
                   <div className="flex items-start gap-2.5 min-w-0">
-                    <div className="w-6 h-6 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
-                      {commenterInitial}
+                    <div className="w-6 h-6 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 overflow-hidden">
+                      {c.profiles?.avatar_url ? (
+                        <img src={c.profiles.avatar_url} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        commenterInitial
+                      )}
                     </div>
                     <div className="leading-snug">
                       <span className="font-bold text-slate-900 mr-1.5">{commenterName}</span>
@@ -629,8 +639,12 @@ export default function PostCard({ post, onImageClick }: PostCardProps) {
         onSubmit={handleComment}
         className="flex items-center gap-3 px-4 py-3 border-t border-slate-100 bg-slate-50/50"
       >
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#7a2130] to-[#4A141B] flex items-center justify-center text-white font-bold text-xs shrink-0">
-          {user?.full_name?.charAt(0) || "ต"}
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#7a2130] to-[#4A141B] flex items-center justify-center text-white font-bold text-xs shrink-0 overflow-hidden">
+          {user?.avatar_url ? (
+            <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
+          ) : (
+            user?.full_name?.charAt(0) || "ต"
+          )}
         </div>
         <input
           ref={commentInputRef}

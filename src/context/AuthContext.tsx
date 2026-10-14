@@ -27,7 +27,27 @@ interface AuthContextType {
   unlikePost: (postId: string) => Promise<boolean>;
   addComment: (postId: string, content: string) => Promise<boolean>;
   deleteComment: (commentId: string) => Promise<boolean>;
-  updateProfile: (profileData: { full_name: string; rank?: string; unit: string; phone?: string }) => Promise<{ success: boolean; message?: string }>;
+  updateProfile: (profileData: {
+    full_name: string;
+    rank?: string;
+    unit: string;
+    phone?: string;
+    avatar_url?: string;
+    show_rank?: boolean;
+    show_unit?: boolean;
+    is_liked_public?: boolean;
+    hide_phone?: boolean;
+    hide_email?: boolean;
+  }) => Promise<{ success: boolean; message?: string }>;
+  uploadAvatar: (file: File) => Promise<{ success: boolean; url?: string; errorMessage?: string }>;
+  removeAvatar: () => Promise<{ success: boolean; errorMessage?: string }>;
+  updatePrivacySettings: (settings: {
+    show_rank?: boolean;
+    show_unit?: boolean;
+    is_liked_public?: boolean;
+    hide_phone?: boolean;
+    hide_email?: boolean;
+  }) => Promise<{ success: boolean; message?: string }>;
   fetchPosts: () => Promise<void>;
   refreshData: () => void;
 }
@@ -91,9 +111,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .from('posts')
         .select(`
           *,
-          profiles!posts_user_id_fkey(full_name, rank, unit),
-          post_likes(id, user_id, profiles(full_name, rank)),
-          post_comments(id, user_id, content, created_at, profiles!post_comments_user_id_fkey(full_name, rank, unit))
+          profiles!posts_user_id_fkey(*),
+          post_likes(id, user_id, profiles(*)),
+          post_comments(id, user_id, content, created_at, profiles!post_comments_user_id_fkey(*))
         `)
         .order('created_at', { ascending: false });
 
@@ -105,7 +125,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .from('posts')
           .select(`
             *,
-            profiles(full_name, rank, unit),
+            profiles(*),
             post_likes(id, user_id),
             post_comments(id, user_id, content, created_at)
           `)
@@ -136,7 +156,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             if (userIds.size > 0) {
               const { data: profs } = await supabase
                 .from('profiles')
-                .select('id, full_name, rank, unit')
+                .select('*')
                 .in('id', Array.from(userIds));
               if (profs) {
                 profs.forEach((pr: any) => { profileMap[pr.id] = pr; });
@@ -319,12 +339,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     rank?: string;
     unit: string;
     phone?: string;
+    avatar_url?: string;
+    show_rank?: boolean;
+    show_unit?: boolean;
+    is_liked_public?: boolean;
+    hide_phone?: boolean;
+    hide_email?: boolean;
   }) => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return { success: false, message: "กรุณาเข้าสู่ระบบก่อน" };
 
-      const payload = {
+      const payload: any = {
         id: session.user.id,
         full_name: profileData.full_name,
         rank: profileData.rank || null,
@@ -334,15 +360,162 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         is_onboarded: true,
       };
 
+      if (profileData.avatar_url !== undefined) payload.avatar_url = profileData.avatar_url;
+      if (profileData.show_rank !== undefined) payload.show_rank = profileData.show_rank;
+      if (profileData.show_unit !== undefined) payload.show_unit = profileData.show_unit;
+      if (profileData.is_liked_public !== undefined) payload.is_liked_public = profileData.is_liked_public;
+      if (profileData.hide_phone !== undefined) payload.hide_phone = profileData.hide_phone;
+      if (profileData.hide_email !== undefined) payload.hide_email = profileData.hide_email;
+
       const { error } = await supabase
         .from('profiles')
         .upsert(payload);
 
       if (error) throw error;
+
+      // Optimistic local update
+      setUser(prev => prev ? {
+        ...prev,
+        ...profileData,
+        full_name: profileData.full_name,
+        rank: profileData.rank,
+        unit: profileData.unit,
+        phone: profileData.phone,
+        is_onboarded: true,
+      } : null);
+
       await fetchUserAndProfile();
+      await fetchPosts();
       return { success: true };
     } catch (error: any) {
       return { success: false, message: error.message };
+    }
+  };
+
+  const uploadAvatar = async (file: File): Promise<{ success: boolean; url?: string; errorMessage?: string }> => {
+    if (!user) return { success: false, errorMessage: "กรุณาเข้าสู่ระบบก่อน" };
+
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (!validTypes.includes(file.type)) {
+      return { success: false, errorMessage: "รองรับเฉพาะไฟล์รูปภาพ (JPG, PNG, WEBP, GIF)" };
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      return { success: false, errorMessage: "ขนาดไฟล์ต้องไม่เกิน 5MB" };
+    }
+
+    try {
+      const fileExt = file.name.split('.').pop() || 'png';
+      const fileName = `${user.id}/avatar-${Date.now()}.${fileExt}`;
+
+      // Try 'avatars' bucket first
+      let uploadRes = await supabase.storage
+        .from('avatars')
+        .upload(fileName, file, { cacheControl: '3600', upsert: true });
+
+      let bucketUsed = 'avatars';
+      let filePath = fileName;
+
+      // Fallback to 'submissions' bucket if 'avatars' bucket isn't created yet
+      if (uploadRes.error) {
+        console.warn("Upload to 'avatars' failed, trying fallback bucket 'submissions':", uploadRes.error);
+        filePath = `avatars/${fileName}`;
+        uploadRes = await supabase.storage
+          .from('submissions')
+          .upload(filePath, file, { cacheControl: '3600', upsert: true });
+        bucketUsed = 'submissions';
+      }
+
+      if (uploadRes.error) {
+        console.error("Avatar upload failed completely:", uploadRes.error);
+        const isRls = uploadRes.error.message?.toLowerCase().includes("row-level security") || uploadRes.error.message?.toLowerCase().includes("policy");
+        return {
+          success: false,
+          errorMessage: isRls
+            ? "ติดสิทธิ์ Storage (RLS): กรุณารันคำสั่ง SQL ใน Supabase เพื่อเปิดสิทธิ์บัคเก็ต avatars"
+            : `อัปโหลดรูปภาพไม่สำเร็จ: ${uploadRes.error.message}`
+        };
+      }
+
+      const { data: urlData } = supabase.storage
+        .from(bucketUsed)
+        .getPublicUrl(uploadRes.data?.path || filePath);
+
+      const publicUrl = urlData?.publicUrl;
+      if (!publicUrl) {
+        return { success: false, errorMessage: "ไม่สามารถรับ URL รูปภาพได้" };
+      }
+
+      // Update profiles in DB
+      const { error: dbError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('id', user.id);
+
+      if (dbError) {
+        console.warn("DB update error (avatar_url column may need SQL upgrade):", dbError.message);
+      }
+
+      // Optimistic update
+      setUser(prev => prev ? { ...prev, avatar_url: publicUrl } : null);
+      setPosts(prev => prev.map(p => p.user_id === user.id ? {
+        ...p,
+        profiles: { ...(p.profiles || { full_name: user.full_name, rank: user.rank, unit: user.unit }), avatar_url: publicUrl }
+      } : p));
+
+      return { success: true, url: publicUrl };
+    } catch (err: any) {
+      console.error("Upload avatar exception:", err);
+      return { success: false, errorMessage: err.message || "เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ" };
+    }
+  };
+
+  const removeAvatar = async (): Promise<{ success: boolean; errorMessage?: string }> => {
+    if (!user) return { success: false, errorMessage: "กรุณาเข้าสู่ระบบก่อน" };
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ avatar_url: null })
+        .eq('id', user.id);
+
+      if (error) {
+        console.warn("DB update error on remove avatar:", error.message);
+      }
+
+      setUser(prev => prev ? { ...prev, avatar_url: undefined } : null);
+      setPosts(prev => prev.map(p => p.user_id === user.id ? {
+        ...p,
+        profiles: { ...(p.profiles || { full_name: user.full_name, rank: user.rank, unit: user.unit }), avatar_url: undefined }
+      } : p));
+
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, errorMessage: err.message };
+    }
+  };
+
+  const updatePrivacySettings = async (settings: {
+    show_rank?: boolean;
+    show_unit?: boolean;
+    is_liked_public?: boolean;
+    hide_phone?: boolean;
+    hide_email?: boolean;
+  }): Promise<{ success: boolean; message?: string }> => {
+    if (!user) return { success: false, message: "กรุณาเข้าสู่ระบบก่อน" };
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update(settings)
+        .eq('id', user.id);
+
+      if (error) {
+        console.warn("DB update error on privacy settings (might need SQL migration):", error.message);
+      }
+
+      // Optimistic update
+      setUser(prev => prev ? { ...prev, ...settings } : null);
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, message: err.message };
     }
   };
 
@@ -692,6 +865,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         addComment,
         deleteComment,
         updateProfile,
+        uploadAvatar,
+        removeAvatar,
+        updatePrivacySettings,
         fetchPosts,
         refreshData
       }}

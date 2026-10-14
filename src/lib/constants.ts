@@ -87,7 +87,14 @@ export interface UserProfile {
   role: 'officer' | 'admin';
   phone?: string;
   email?: string;
+  avatar_url?: string;
+  show_rank?: boolean;
+  show_unit?: boolean;
+  is_liked_public?: boolean;
+  hide_phone?: boolean;
+  hide_email?: boolean;
   is_onboarded?: boolean;
+  created_at?: string;
 }
 
 export interface Post {
@@ -107,6 +114,7 @@ export interface PostLike {
   profiles?: {
     full_name: string;
     rank?: string;
+    avatar_url?: string;
   };
 }
 
@@ -123,6 +131,9 @@ export interface PostWithDetails extends Post {
     full_name: string;
     rank?: string;
     unit: string;
+    avatar_url?: string;
+    show_rank?: boolean;
+    show_unit?: boolean;
   };
   post_likes?: PostLike[];
   post_comments?: (PostComment & {
@@ -130,6 +141,9 @@ export interface PostWithDetails extends Post {
       full_name: string;
       rank?: string;
       unit: string;
+      avatar_url?: string;
+      show_rank?: boolean;
+      show_unit?: boolean;
     };
   })[];
   like_count?: number;

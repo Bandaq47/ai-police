@@ -108,23 +108,43 @@ export default function OfficerDashboardPage() {
           <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-amber-400/10 blur-3xl pointer-events-none" />
           <div className="absolute -bottom-6 -left-6 w-32 h-32 rounded-full bg-black/20 blur-2xl pointer-events-none" />
 
-          <div className="relative z-10">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-2.5 py-1 rounded-full text-xs font-semibold text-amber-300 border border-white/10 mb-3">
-              <Sparkles className="w-3 h-3" />
-              ระบบฝึกอบรม AI POLICE
+          <div className="relative z-10 flex items-start justify-between gap-3">
+            <div>
+              {/* Badge */}
+              <div className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-2.5 py-1 rounded-full text-xs font-semibold text-amber-300 border border-white/10 mb-3">
+                <Sparkles className="w-3 h-3" />
+                ระบบฝึกอบรม AI POLICE
+              </div>
+
+              {/* Name */}
+              <h1 className="text-xl font-extrabold tracking-tight leading-snug">
+                สวัสดี {user.rank ? `${user.rank} ` : ""}
+                <br />
+                <span className="text-2xl">{user.full_name}</span>
+              </h1>
+              <p className="text-xs text-white/70 flex items-center gap-1.5 mt-1.5">
+                <Shield className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                {user.unit}
+              </p>
             </div>
 
-            {/* Name */}
-            <h1 className="text-xl font-extrabold tracking-tight leading-snug">
-              สวัสดี {user.rank ? `${user.rank} ` : ""}
-              <br />
-              <span className="text-2xl">{user.full_name}</span>
-            </h1>
-            <p className="text-xs text-white/70 flex items-center gap-1.5 mt-1.5">
-              <Shield className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-              {user.unit}
-            </p>
+            {/* Profile Avatar Quick Link */}
+            <Link
+              href="/profile"
+              className="group flex flex-col items-center gap-1.5 p-1 rounded-2xl hover:bg-white/10 transition-all shrink-0 text-center"
+              title="ดูโปรไฟล์และผลงานส่วนตัว"
+            >
+              <div className="w-14 h-14 rounded-2xl overflow-hidden bg-gradient-to-br from-[#7a2130] to-[#4A141B] flex items-center justify-center text-white font-extrabold text-xl shadow-lg ring-2 ring-amber-300/40 group-hover:ring-amber-300 transition-all">
+                {user.avatar_url ? (
+                  <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  user.full_name?.charAt(0) || "ต"
+                )}
+              </div>
+              <span className="text-[10px] text-amber-200/90 font-bold bg-white/10 px-2 py-0.5 rounded-full backdrop-blur-sm">
+                โปรไฟล์ &gt;
+              </span>
+            </Link>
           </div>
 
           {/* Stats row */}
